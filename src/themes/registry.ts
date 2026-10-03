@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Brand, CategoryNode, FlashSale, Product } from "@/services/catalog";
+import { GroceryThemeLayout } from "./grocery/grocery-layout";
 
 export interface ThemeHomeProps {
   storeName: string;
@@ -42,7 +43,7 @@ export const REGISTERED_THEMES: Record<string, ThemeMetadata> = {
   },
   grocery: {
     id: "grocery",
-    name: "Grocery & Supermarket",
+    name: "Grocery & Supermarket (Shwapno Express)",
     description: "Quick buy shopping experience for daily essentials.",
     category: "grocery",
   },
@@ -55,9 +56,10 @@ export const REGISTERED_THEMES: Record<string, ThemeMetadata> = {
  */
 export function renderStoreTheme(themeId: string, props: ThemeHomeProps): ReactNode {
   switch (themeId) {
+    case "grocery":
+      return <GroceryThemeLayout {...props} />;
     case "fashion":
     case "electronics":
-    case "grocery":
     case "default":
     default:
       // Once specific theme components are built, they will be mounted here:
