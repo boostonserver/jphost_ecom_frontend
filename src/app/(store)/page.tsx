@@ -73,7 +73,7 @@ async function loadHome(): Promise<HomeData | { unavailable: string }> {
         serverFetch<Paginated<Product>>("/products?featured=1&per_page=8"),
         serverFetch<Paginated<Product>>("/products?new=1&per_page=8"),
         serverFetch<Paginated<Product>>("/products?bestseller=1&per_page=8"),
-        serverFetch<{ active_theme: string }>("/store/theme", 60).catch(() => ({ active_theme: "default" })),
+        serverFetch<{ active_theme: string }>("/store/theme", 0).catch(() => ({ active_theme: "default" })),
       ]);
 
     return {
