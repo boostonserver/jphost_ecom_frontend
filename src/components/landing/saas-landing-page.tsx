@@ -38,7 +38,7 @@ export function SaasLandingPage({ cmsData }: SaasLandingPageProps) {
         <LandingHowItWorks />
 
         {/* 7. Transparent Pricing Plans */}
-        <LandingPricing />
+        <LandingPricing cmsPackages={cmsData?.packages} />
 
         {/* 8. Merchant Testimonials */}
         <LandingTestimonials cmsTestimonials={cmsData?.testimonials} />

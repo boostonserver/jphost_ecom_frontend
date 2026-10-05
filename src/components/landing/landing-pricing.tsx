@@ -5,83 +5,178 @@ import { useState, useEffect } from "react";
 import { publicOnboardingApi, type PublicPackage } from "@/services/platform";
 import { StoreOnboardingModal } from "./store-onboarding-modal";
 
-export function LandingPricing() {
+interface LandingPricingProps {
+  cmsPackages?: PublicPackage[];
+}
+
+function getPackageFeatures(features: Record<string, any> = {}): string[] {
+  const list: string[] = [];
+
+  if (features.products === null || features.products === undefined) {
+    list.push("Unlimited Products & Categories");
+  } else {
+    list.push(`Up to ${features.products} Products`);
+  }
+
+  if (features.orders_month === null || features.orders_month === undefined) {
+    list.push("Unlimited Orders per month");
+  } else {
+    list.push(`Up to ${features.orders_month} Orders/month`);
+  }
+
+  if (features.admin_users === null || features.admin_users === undefined) {
+    list.push("Unlimited Staff & Admin Accounts");
+  } else {
+    list.push(`${features.admin_users} Staff & Admin Accounts`);
+  }
+
+  if (features.custom_domain) {
+    list.push("Connect Custom Domain (.com / .bd)");
+  } else {
+    list.push("Free *.bdbazz.com Subdomain");
+  }
+
+  if (features.storage_mb) {
+    const gb = Math.round((features.storage_mb / 1024) * 10) / 10;
+    list.push(gb >= 1 ? `${gb}GB Fast Cloud Storage` : `${features.storage_mb}MB Fast Cloud Storage`);
+  }
+
+  if (features.abandoned_cart) {
+    list.push("Abandoned Cart Recovery Engine");
+  }
+
+  if (features.advanced_reports) {
+    list.push("Advanced Analytics & Financial Reports");
+  }
+
+  if (features.api_access) {
+    list.push("API Access & Webhook Integrations");
+  }
+
+  // Standard Bangladesh SaaS platform benefits
+  list.push("bKash & Nagad (QR & Manual MFS)");
+  list.push("Steadfast & Pathao 1-Click Dispatch");
+  list.push("0% Order Transaction Commission");
+
+  return list;
+}
+
+export function LandingPricing({ cmsPackages }: LandingPricingProps) {
   const [isYearly, setIsYearly] = useState(false);
-  const [packages, setPackages] = useState<PublicPackage[]>([]);
+  const [packages, setPackages] = useState<PublicPackage[]>(cmsPackages || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
   useEffect(() => {
-    publicOnboardingApi
-      .getPackages()
-      .then((res) => {
-        if (res.items && res.items.length > 0) {
-          setPackages(res.items);
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (cmsPackages && cmsPackages.length > 0) {
+      setPackages(cmsPackages);
+    } else {
+      publicOnboardingApi
+        .getPackages()
+        .then((res) => {
+          if (res.items && res.items.length > 0) {
+            setPackages(res.items);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [cmsPackages]);
 
-  const defaultPlans = [
-    {
-      slug: "starter",
-      name: "Starter Store",
-      tagline: "Perfect for new online sellers & boutique shops.",
-      monthlyPrice: "1,500",
-      yearlyPrice: "15,000",
-      isPopular: false,
-      buttonText: "Start 14-Day Free Trial",
-      features: [
-        "Up to 300 Products",
-        "Free *.bdbazz.com Subdomain",
-        "Modern Store Theme included",
-        "bKash & Nagad (Manual & QR)",
-        "Standard COD & Order Management",
-        "Basic Analytics & Invoices",
-        "Email & Chat Support",
-      ],
-    },
-    {
-      slug: "growth",
-      name: "Growth Business",
-      tagline: "Best for growing brands & high-volume merchants.",
-      monthlyPrice: "4,500",
-      yearlyPrice: "45,000",
-      isPopular: true,
-      buttonText: "Start 14-Day Free Trial",
-      features: [
-        "Unlimited Products & Categories",
-        "Connect Custom Domain (yourbrand.com)",
-        "All Themes (Shwapno Express, Fashion, Tech)",
-        "Direct bKash & Nagad Merchant API",
-        "Steadfast & Pathao 1-Click Dispatch",
-        "Flash Sales & Countdown Discount Timers",
-        "Customer Tagging & Segmented Coupons",
-        "Priority WhatsApp & Phone Helpline",
-        "0% Transaction Commission",
-      ],
-    },
-    {
-      slug: "business",
-      name: "Business Enterprise",
-      tagline: "For supermarkets, retail chains & large teams.",
-      monthlyPrice: "12,000",
-      yearlyPrice: "120,000",
-      isPopular: false,
-      buttonText: "Launch Enterprise Store",
-      features: [
-        "Everything in Growth Business",
-        "Unlimited Staff Accounts & Custom RBAC",
-        "Custom Storefront Layout Requests",
-        "Multi-Branch & Multi-Warehouse Tracking",
-        "Dedicated Account Manager in Dhaka",
-        "Guaranteed 99.9% Server SLA",
-        "Custom API Webhook Exports",
-      ],
-    },
-  ];
+  const displayPlans =
+    packages && packages.length > 0
+      ? packages.map((pkg) => {
+          const mPrice = parseFloat(pkg.price);
+          const yPrice = mPrice * 10;
+          const isPopular =
+            pkg.slug.toLowerCase().includes("growth") ||
+            pkg.name.toLowerCase().includes("growth");
 
-  const handleOpenOnboarding = (pkgId: number | null) => {
+          return {
+            packageId: pkg.id,
+            slug: pkg.slug,
+            name: pkg.name,
+            tagline:
+              pkg.description ||
+              "Designed for high-growth online merchants in Bangladesh.",
+            monthlyPrice: mPrice.toLocaleString(),
+            yearlyPrice: yPrice.toLocaleString(),
+            isPopular,
+            trialDays: pkg.trial_days,
+            buttonText:
+              pkg.trial_days > 0
+                ? `Start ${pkg.trial_days}-Day Free Trial`
+                : `Start ${pkg.name} Plan`,
+            features: getPackageFeatures(pkg.features),
+          };
+        })
+      : [
+          {
+            packageId: 1,
+            slug: "starter",
+            name: "Starter Store",
+            tagline: "For a new shop finding its first customers.",
+            monthlyPrice: "1,500",
+            yearlyPrice: "15,000",
+            isPopular: false,
+            trialDays: 14,
+            buttonText: "Start 14-Day Free Trial",
+            features: [
+              "Up to 100 Products",
+              "Up to 500 Orders/month",
+              "3 Staff & Admin Accounts",
+              "Free *.bdbazz.com Subdomain",
+              "512MB Fast Cloud Storage",
+              "bKash & Nagad (QR & Manual MFS)",
+              "0% Transaction Commission",
+            ],
+          },
+          {
+            packageId: 2,
+            slug: "growth",
+            name: "Growth Business",
+            tagline: "For a shop with steady orders and a small team.",
+            monthlyPrice: "4,500",
+            yearlyPrice: "45,000",
+            isPopular: true,
+            trialDays: 14,
+            buttonText: "Start 14-Day Free Trial",
+            features: [
+              "Up to 1,000 Products",
+              "Up to 5,000 Orders/month",
+              "10 Staff & Admin Accounts",
+              "Connect Custom Domain (.com / .bd)",
+              "5GB Fast Cloud Storage",
+              "Steadfast & Pathao 1-Click Dispatch",
+              "Abandoned Cart Recovery Engine",
+              "Advanced Analytics & Reports",
+              "0% Transaction Commission",
+            ],
+          },
+          {
+            packageId: 3,
+            slug: "business",
+            name: "Business Enterprise",
+            tagline: "For an established retailer running at scale.",
+            monthlyPrice: "12,000",
+            yearlyPrice: "120,000",
+            isPopular: false,
+            trialDays: 0,
+            buttonText: "Launch Enterprise Store",
+            features: [
+              "Unlimited Products & Categories",
+              "Unlimited Orders per month",
+              "50 Staff & Admin Accounts",
+              "Connect Custom Domain (.com / .bd)",
+              "50GB Fast Cloud Storage",
+              "Multi-Branch & Multi-Warehouse Tracking",
+              "API Access & Webhook Integrations",
+              "Dedicated Account Manager in Dhaka",
+              "0% Transaction Commission",
+            ],
+          },
+        ];
+
+  const handleOpenOnboarding = (pkgId: number) => {
     setSelectedPlanId(pkgId);
     setIsModalOpen(true);
   };
@@ -131,18 +226,9 @@ export function LandingPricing() {
 
         {/* Pricing Cards Grid */}
         <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {defaultPlans.map((plan, index) => {
-            // Match with database package if loaded
-            const dbPkg = packages.find(
-              (p) => p.slug.toLowerCase() === plan.slug || p.id === index + 1
-            );
-
-            const mPriceNum = dbPkg ? parseFloat(dbPkg.price) : parseFloat(plan.monthlyPrice.replace(/,/g, ""));
-            const yPriceNum = mPriceNum * 10;
-
-            const priceDisplay = isYearly ? yPriceNum.toLocaleString() : mPriceNum.toLocaleString();
+          {displayPlans.map((plan) => {
+            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
             const period = isYearly ? "/year" : "/month";
-            const targetPkgId = dbPkg ? dbPkg.id : index + 1;
 
             return (
               <div
@@ -164,15 +250,13 @@ export function LandingPricing() {
                 )}
 
                 <div>
-                  <h3 className="text-xl font-bold text-white">
-                    {dbPkg?.name || plan.name}
-                  </h3>
+                  <h3 className="text-xl font-bold text-white">{plan.name}</h3>
                   <p className="mt-2 text-xs text-stone-400 leading-relaxed min-h-[2.5rem]">
-                    {dbPkg?.description || plan.tagline}
+                    {plan.tagline}
                   </p>
 
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-3xl sm:text-4xl font-black text-white">৳{priceDisplay}</span>
+                    <span className="text-3xl sm:text-4xl font-black text-white">৳{price}</span>
                     <span className="text-xs text-stone-400">{period}</span>
                   </div>
 
@@ -189,7 +273,7 @@ export function LandingPricing() {
                 <div className="mt-8 pt-6 border-t border-stone-800">
                   <button
                     type="button"
-                    onClick={() => handleOpenOnboarding(targetPkgId)}
+                    onClick={() => handleOpenOnboarding(plan.packageId)}
                     className={`w-full py-3.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
                       plan.isPopular
                         ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 hover:shadow-emerald-500/25 active:scale-95"

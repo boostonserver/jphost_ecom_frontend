@@ -151,7 +151,7 @@ export interface LandingCmsSettings {
   testimonials: LandingTestimonialItem[];
   faqs: LandingFaqItem[];
   contact: LandingContactSettings;
-  packages?: unknown[];
+  packages?: PublicPackage[];
 }
 
 export interface PlatformBillingSettings {
