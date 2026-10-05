@@ -1,21 +1,36 @@
 "use client";
 
 import { ArrowRight, Check, Sparkles } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { publicOnboardingApi, type PublicPackage } from "@/services/platform";
+import { StoreOnboardingModal } from "./store-onboarding-modal";
 
 export function LandingPricing() {
   const [isYearly, setIsYearly] = useState(false);
+  const [packages, setPackages] = useState<PublicPackage[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
-  const plans = [
+  useEffect(() => {
+    publicOnboardingApi
+      .getPackages()
+      .then((res) => {
+        if (res.items && res.items.length > 0) {
+          setPackages(res.items);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const defaultPlans = [
     {
-      id: "starter",
+      slug: "starter",
       name: "Starter Store",
       tagline: "Perfect for new online sellers & boutique shops.",
-      monthlyPrice: "999",
-      yearlyPrice: "9,990",
+      monthlyPrice: "1,500",
+      yearlyPrice: "15,000",
       isPopular: false,
-      buttonText: "Start Starter Plan",
+      buttonText: "Start 14-Day Free Trial",
       features: [
         "Up to 300 Products",
         "Free *.bdbazz.com Subdomain",
@@ -27,11 +42,11 @@ export function LandingPricing() {
       ],
     },
     {
-      id: "growth",
+      slug: "growth",
       name: "Growth Business",
       tagline: "Best for growing brands & high-volume merchants.",
-      monthlyPrice: "2,499",
-      yearlyPrice: "24,990",
+      monthlyPrice: "4,500",
+      yearlyPrice: "45,000",
       isPopular: true,
       buttonText: "Start 14-Day Free Trial",
       features: [
@@ -47,13 +62,13 @@ export function LandingPricing() {
       ],
     },
     {
-      id: "enterprise",
-      name: "Enterprise Brand",
+      slug: "business",
+      name: "Business Enterprise",
       tagline: "For supermarkets, retail chains & large teams.",
-      monthlyPrice: "5,999",
-      yearlyPrice: "59,990",
+      monthlyPrice: "12,000",
+      yearlyPrice: "120,000",
       isPopular: false,
-      buttonText: "Contact Enterprise Sales",
+      buttonText: "Launch Enterprise Store",
       features: [
         "Everything in Growth Business",
         "Unlimited Staff Accounts & Custom RBAC",
@@ -65,6 +80,11 @@ export function LandingPricing() {
       ],
     },
   ];
+
+  const handleOpenOnboarding = (pkgId: number | null) => {
+    setSelectedPlanId(pkgId);
+    setIsModalOpen(true);
+  };
 
   return (
     <section id="pricing" className="py-20 bg-stone-900 border-t border-stone-800 text-white relative">
@@ -111,13 +131,22 @@ export function LandingPricing() {
 
         {/* Pricing Cards Grid */}
         <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {plans.map((plan) => {
-            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+          {defaultPlans.map((plan, index) => {
+            // Match with database package if loaded
+            const dbPkg = packages.find(
+              (p) => p.slug.toLowerCase() === plan.slug || p.id === index + 1
+            );
+
+            const mPriceNum = dbPkg ? parseFloat(dbPkg.price) : parseFloat(plan.monthlyPrice.replace(/,/g, ""));
+            const yPriceNum = mPriceNum * 10;
+
+            const priceDisplay = isYearly ? yPriceNum.toLocaleString() : mPriceNum.toLocaleString();
             const period = isYearly ? "/year" : "/month";
+            const targetPkgId = dbPkg ? dbPkg.id : index + 1;
 
             return (
               <div
-                key={plan.id}
+                key={plan.slug}
                 className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 ${
                   plan.isPopular
                     ? "bg-gradient-to-b from-stone-800 to-stone-900 border-2 border-emerald-500 shadow-2xl shadow-emerald-500/10 lg:-translate-y-2"
@@ -135,13 +164,15 @@ export function LandingPricing() {
                 )}
 
                 <div>
-                  <h3 className="text-xl font-bold text-white">{plan.name}</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    {dbPkg?.name || plan.name}
+                  </h3>
                   <p className="mt-2 text-xs text-stone-400 leading-relaxed min-h-[2.5rem]">
-                    {plan.tagline}
+                    {dbPkg?.description || plan.tagline}
                   </p>
 
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-3xl sm:text-4xl font-black text-white">৳{price}</span>
+                    <span className="text-3xl sm:text-4xl font-black text-white">৳{priceDisplay}</span>
                     <span className="text-xs text-stone-400">{period}</span>
                   </div>
 
@@ -156,25 +187,32 @@ export function LandingPricing() {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-stone-800">
-                  <a
-                    href="https://demo.bdbazz.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`w-full py-3.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-md ${
+                  <button
+                    type="button"
+                    onClick={() => handleOpenOnboarding(targetPkgId)}
+                    className={`w-full py-3.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
                       plan.isPopular
                         ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 hover:shadow-emerald-500/25 active:scale-95"
-                        : "bg-stone-800 hover:bg-stone-700 text-white hover:text-white"
+                        : "bg-stone-800 hover:bg-stone-700 text-white hover:text-white active:scale-95"
                     }`}
                   >
                     <span>{plan.buttonText}</span>
                     <ArrowRight className="size-3.5" />
-                  </a>
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* Interactive Store Onboarding Modal */}
+      <StoreOnboardingModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        preselectedPlanId={selectedPlanId}
+        preselectedBillingCycle={isYearly ? "yearly" : "monthly"}
+      />
     </section>
   );
 }

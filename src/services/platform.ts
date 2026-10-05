@@ -452,6 +452,73 @@ export const platformService = {
     api.post<{ settings: LandingCmsSettings }>("/platform/landing-cms", payload),
 };
 
+export interface PublicPackage {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: string;
+  currency: string;
+  billing_period: string;
+  trial_days: number;
+  grace_days: number;
+  features: Record<string, number | boolean | null>;
+}
+
+export interface SubdomainCheckResponse {
+  available: boolean;
+  subdomain: string;
+  hostname?: string;
+  message: string;
+}
+
+export interface OnboardStorePayload {
+  store_name: string;
+  subdomain: string;
+  category?: string;
+  owner_name: string;
+  email: string;
+  phone: string;
+  password: string;
+  package_id: number;
+  billing_cycle: "monthly" | "yearly";
+  payment_method?: "bkash" | "nagad" | "bank" | "trial" | "later";
+  transaction_id?: string;
+  sender_number?: string;
+}
+
+export interface OnboardStoreResponse {
+  tenant_id: number;
+  store_name: string;
+  subdomain: string;
+  hostname: string;
+  store_url: string;
+  admin_url: string;
+  admin_email: string;
+  package_name: string;
+  billing_cycle: string;
+  is_trial: boolean;
+  trial_days: number;
+  invoice: {
+    id: number;
+    number: string;
+    total: string;
+    currency: string;
+    status: string;
+    due_at: string | null;
+  } | null;
+}
+
+export const publicOnboardingApi = {
+  getPackages: () => api.get<{ items: PublicPackage[] }>("/platform/public/packages"),
+  checkSubdomain: (subdomain: string) =>
+    api.get<SubdomainCheckResponse>(`/platform/public/check-subdomain?subdomain=${encodeURIComponent(subdomain)}`),
+  getBillingInstructions: () =>
+    api.get<PlatformBillingSettings["payment_instructions"]>("/platform/public/billing-instructions"),
+  onboard: (payload: OnboardStorePayload) =>
+    api.post<OnboardStoreResponse>("/platform/public/onboard", payload),
+};
+
 /**
  * Whether the signed-in platform user holds an ability.
  *
@@ -467,3 +534,4 @@ export function canPlatform(
 
   return user.abilities?.includes(ability) ?? false;
 }
+
