@@ -270,7 +270,7 @@ function InvoiceDetailPanel({
       {/* Tabs / Action Buttons */}
       <div className="flex flex-wrap gap-2 border-b pb-3">
         <Button
-          variant={activeTab === "overview" ? "default" : "outline"}
+          variant={activeTab === "overview" ? "primary" : "outline"}
           size="sm"
           onClick={() => setActiveTab("overview")}
           className="text-xs"
@@ -280,7 +280,7 @@ function InvoiceDetailPanel({
 
         {canRecord && !isPaid && !isVoid && (
           <Button
-            variant={activeTab === "pay" ? "default" : "outline"}
+            variant={activeTab === "pay" ? "primary" : "outline"}
             size="sm"
             onClick={() => setActiveTab("pay")}
             className="text-xs border-emerald-500/40 text-emerald-700 hover:bg-emerald-50"
@@ -309,7 +309,7 @@ function InvoiceDetailPanel({
 
         {canManage && !isPaid && !isVoid && (
           <Button
-            variant={activeTab === "edit" ? "default" : "outline"}
+            variant={activeTab === "edit" ? "primary" : "outline"}
             size="sm"
             onClick={() => setActiveTab("edit")}
             className="text-xs"
