@@ -48,7 +48,7 @@ export default function PlatformInvoicesPage() {
         <div>
           <h1 className="text-2xl font-bold">Invoices</h1>
           <p className="text-muted-foreground text-sm">
-            What tenants owe the platform, and what has been received.
+            What stores owe the platform, and payment receipts received.
           </p>
         </div>
 
