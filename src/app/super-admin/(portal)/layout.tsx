@@ -10,6 +10,7 @@ import {
   PlusCircle,
   Receipt,
   ShieldCheck,
+  Sliders,
   Store,
   Users,
 } from "lucide-react";
@@ -76,6 +77,12 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Invoices & Billing",
         ability: "invoice.view",
         icon: Receipt,
+      },
+      {
+        href: "/super-admin/settings",
+        label: "Billing Rules & Settings",
+        ability: "invoice.manage",
+        icon: Sliders,
       },
     ],
   },

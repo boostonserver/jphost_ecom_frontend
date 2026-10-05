@@ -154,6 +154,26 @@ export interface LandingCmsSettings {
   packages?: unknown[];
 }
 
+export interface PlatformBillingSettings {
+  invoice_lead_days: number;
+  first_reminder_days: number;
+  urgent_reminder_days: number;
+  grace_period_days: number;
+  late_fee_enabled: boolean;
+  late_fee_percentage: number;
+  payment_instructions?: {
+    company_name?: string;
+    bkash_merchant?: string;
+    nagad_merchant?: string;
+    bank_name?: string;
+    account_name?: string;
+    account_number?: string;
+    branch?: string;
+    routing_number?: string;
+    notes?: string;
+  };
+}
+
 export interface Package {
   id: number;
   name: string;
@@ -350,14 +370,40 @@ export const platformService = {
   invoices: (params: { status?: string; tenant_id?: number; outstanding?: boolean } = {}) =>
     api.get<Paginated<Invoice>>(`/platform/invoices?${query(params)}`),
   invoice: (id: number) => api.get<Invoice>(`/platform/invoices/${id}`),
+  updateInvoice: (
+    id: number,
+    payload: {
+      due_at?: string | null;
+      notes?: string | null;
+      discount?: string | number | null;
+      tax?: string | number | null;
+      line_items?: Array<{
+        description: string;
+        quantity: number;
+        unit_price: string | number;
+        amount: string | number;
+      }>;
+    },
+  ) => api.patch<Invoice>(`/platform/invoices/${id}`, payload),
   issueInvoice: (id: number, dueAt?: string) =>
     api.post<Invoice>(`/platform/invoices/${id}/issue`, { due_at: dueAt }),
   voidInvoice: (id: number, reason: string) =>
     api.post<Invoice>(`/platform/invoices/${id}/void`, { reason }),
+  markInvoicePaid: (
+    id: number,
+    payload: { method?: string; amount?: number | string; reference?: string; note?: string } = {},
+  ) => api.post<Invoice>(`/platform/invoices/${id}/mark-paid`, payload),
+  markInvoiceUnpaid: (id: number) =>
+    api.post<Invoice>(`/platform/invoices/${id}/mark-unpaid`),
   recordPayment: (
     id: number,
     payload: { amount: string; method: string; reference?: string; note?: string },
   ) => api.post<Invoice>(`/platform/invoices/${id}/payments`, payload),
+
+  // --- platform billing settings ----------------------------------------
+  getBillingSettings: () => api.get<PlatformBillingSettings>("/platform/settings/billing"),
+  updateBillingSettings: (payload: Partial<PlatformBillingSettings>) =>
+    api.put<PlatformBillingSettings>("/platform/settings/billing", payload),
 
   // --- staff ------------------------------------------------------------
   users: () =>
