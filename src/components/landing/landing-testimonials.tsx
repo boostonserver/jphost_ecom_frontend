@@ -1,7 +1,12 @@
 import { Star } from "lucide-react";
+import type { LandingTestimonialItem } from "@/services/platform";
 
-export function LandingTestimonials() {
-  const reviews = [
+interface LandingTestimonialsProps {
+  cmsTestimonials?: LandingTestimonialItem[];
+}
+
+export function LandingTestimonials({ cmsTestimonials }: LandingTestimonialsProps) {
+  const defaultReviews = [
     {
       name: "Tanvir Ahmed",
       role: "Founder, Green Grocers BD",
@@ -27,6 +32,18 @@ export function LandingTestimonials() {
       rating: 5,
     },
   ];
+
+  const reviews =
+    cmsTestimonials && cmsTestimonials.length > 0
+      ? cmsTestimonials.map((item) => ({
+          name: item.author,
+          role: item.role ? `${item.role}, ${item.business}` : item.business,
+          location: item.location,
+          theme: item.theme_tag || "BDBazz Merchant",
+          quote: item.quote,
+          rating: item.rating || 5,
+        }))
+      : defaultReviews;
 
   return (
     <section className="py-20 bg-stone-950 text-white relative">

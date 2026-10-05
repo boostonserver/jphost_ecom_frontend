@@ -89,6 +89,71 @@ export interface TenantThemeSettingsResponse {
   }>;
 }
 
+export interface LandingHeroSettings {
+  badge: string;
+  headline: string;
+  subheadline: string;
+  primary_cta_text: string;
+  primary_cta_link: string;
+  secondary_cta_text: string;
+  secondary_cta_link: string;
+  stat_stores: string;
+  stat_stores_label: string;
+  stat_gmv: string;
+  stat_gmv_label: string;
+  stat_uptime: string;
+  stat_uptime_label: string;
+  stat_speed: string;
+  stat_speed_label: string;
+}
+
+export interface LandingThemeItem {
+  id: string;
+  title: string;
+  category: string;
+  tag: string;
+  badge: string;
+  badge_color?: string;
+  description: string;
+  preview_url: string;
+  is_active: boolean;
+}
+
+export interface LandingTestimonialItem {
+  id: number;
+  author: string;
+  role: string;
+  business: string;
+  location: string;
+  theme_tag: string;
+  quote: string;
+  rating: number;
+}
+
+export interface LandingFaqItem {
+  id: number;
+  question: string;
+  answer: string;
+}
+
+export interface LandingContactSettings {
+  hotline: string;
+  email: string;
+  sales_email: string;
+  address: string;
+  facebook_url: string;
+  whatsapp_number: string;
+}
+
+export interface LandingCmsSettings {
+  hero: LandingHeroSettings;
+  themes: LandingThemeItem[];
+  testimonials: LandingTestimonialItem[];
+  faqs: LandingFaqItem[];
+  contact: LandingContactSettings;
+  packages?: unknown[];
+}
+
 export interface Package {
   id: number;
   name: string;
@@ -333,6 +398,12 @@ export const platformService = {
       `/platform/tenants/${tenantId}/theme-settings`,
       payload,
     ),
+
+  // --- SaaS Landing CMS -------------------------------------------------
+  getLandingCms: () =>
+    api.get<{ settings: LandingCmsSettings; packages: Package[] }>("/platform/landing-cms"),
+  updateLandingCms: (payload: Partial<LandingCmsSettings>) =>
+    api.post<{ settings: LandingCmsSettings }>("/platform/landing-cms", payload),
 };
 
 /**

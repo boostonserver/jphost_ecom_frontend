@@ -9,8 +9,13 @@ import { LandingPartners } from "./landing-partners";
 import { LandingPricing } from "./landing-pricing";
 import { LandingTestimonials } from "./landing-testimonials";
 import { LandingThemes } from "./landing-themes";
+import type { LandingCmsSettings } from "@/services/platform";
 
-export function SaasLandingPage() {
+interface SaasLandingPageProps {
+  cmsData?: LandingCmsSettings | null;
+}
+
+export function SaasLandingPage({ cmsData }: SaasLandingPageProps) {
   return (
     <div className="min-h-screen bg-stone-950 font-sans selection:bg-emerald-500 selection:text-stone-950 scroll-smooth">
       {/* 1. Header & Navigation */}
@@ -18,7 +23,7 @@ export function SaasLandingPage() {
 
       <main>
         {/* 2. Hero Section */}
-        <LandingHero />
+        <LandingHero cmsHero={cmsData?.hero} />
 
         {/* 3. Bangladesh Integrations (bKash/Nagad, Steadfast/Pathao) */}
         <LandingPartners />
@@ -27,7 +32,7 @@ export function SaasLandingPage() {
         <LandingFeatures />
 
         {/* 5. Storefront Themes Showcase (Shwapno Grocery, Fashion, Tech) */}
-        <LandingThemes />
+        <LandingThemes cmsThemes={cmsData?.themes} />
 
         {/* 6. How It Works (3 Steps) */}
         <LandingHowItWorks />
@@ -36,17 +41,17 @@ export function SaasLandingPage() {
         <LandingPricing />
 
         {/* 8. Merchant Testimonials */}
-        <LandingTestimonials />
+        <LandingTestimonials cmsTestimonials={cmsData?.testimonials} />
 
         {/* 9. Frequently Asked Questions */}
-        <LandingFaq />
+        <LandingFaq cmsFaqs={cmsData?.faqs} />
 
         {/* 10. Final Call to Action Banner */}
         <LandingCta />
       </main>
 
       {/* 11. Mega Footer */}
-      <LandingFooter />
+      <LandingFooter cmsContact={cmsData?.contact} />
     </div>
   );
 }

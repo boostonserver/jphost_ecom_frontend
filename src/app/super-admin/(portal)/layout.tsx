@@ -15,6 +15,7 @@ const NAV = [
   { href: "/super-admin/tenants", label: "Tenants", ability: "tenant.view" },
   { href: "/super-admin/packages", label: "Packages", ability: "package.view" },
   { href: "/super-admin/invoices", label: "Invoices", ability: "invoice.view" },
+  { href: "/super-admin/landing", label: "Website CMS", ability: "platform.dashboard" },
   { href: "/super-admin/users", label: "Staff", ability: "platform_user.manage" },
   { href: "/super-admin/audit-logs", label: "Audit log", ability: "audit.view" },
 ];

@@ -1,7 +1,16 @@
 import { Mail, MapPin, Phone, ShieldCheck, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import type { LandingContactSettings } from "@/services/platform";
 
-export function LandingFooter() {
+interface LandingFooterProps {
+  cmsContact?: Partial<LandingContactSettings>;
+}
+
+export function LandingFooter({ cmsContact }: LandingFooterProps) {
+  const address = cmsContact?.address || "Banani, Dhaka-1213, Bangladesh";
+  const hotline = cmsContact?.hotline || "16469 / +880 9612-BDBAZZ";
+  const email = cmsContact?.email || "support@bdbazz.com";
+
   return (
     <footer className="bg-stone-950 border-t border-stone-800 text-stone-400 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
@@ -24,15 +33,15 @@ export function LandingFooter() {
             <div className="pt-2 space-y-2 text-xs text-stone-400">
               <div className="flex items-center gap-2">
                 <MapPin className="size-3.5 text-emerald-400 shrink-0" />
-                <span>Banani, Dhaka-1213, Bangladesh</span>
+                <span>{address}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="size-3.5 text-emerald-400 shrink-0" />
-                <span>Hotline: +880 1700-000000 (9 AM - 10 PM)</span>
+                <span>Hotline: {hotline}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="size-3.5 text-emerald-400 shrink-0" />
-                <span>Email: support@bdbazz.com</span>
+                <span>Email: {email}</span>
               </div>
             </div>
           </div>

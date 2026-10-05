@@ -5,6 +5,7 @@ import { BrandTile } from "@/components/catalog/brand-tile";
 import { HeroCarousel } from "@/components/catalog/hero-carousel";
 import { ProductRail } from "@/components/catalog/product-grid";
 import { SaasLandingPage } from "@/components/landing/saas-landing-page";
+import { loadPublicLandingData } from "@/services/landing";
 import { FlashSaleBand } from "@/components/store/flash-sale-band";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -107,7 +108,8 @@ export default async function StoreHomePage() {
   // When browsing the central platform domain (bdbazz.com), render the BDBazz SaaS Landing Page.
   // When browsing store domains (e.g. demo.bdbazz.com or client stores), render the active store theme.
   if (isCentral) {
-    return <SaasLandingPage />;
+    const cmsData = await loadPublicLandingData();
+    return <SaasLandingPage cmsData={cmsData} />;
   }
 
   const [data, storeName] = await Promise.all([loadHome(), loadStoreName()]);

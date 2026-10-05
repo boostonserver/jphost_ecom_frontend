@@ -1,8 +1,13 @@
 import { Check, ExternalLink, Eye, Layout, Palette, ShoppingBag, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
+import type { LandingThemeItem } from "@/services/platform";
 
-export function LandingThemes() {
-  const themes = [
+interface LandingThemesProps {
+  cmsThemes?: LandingThemeItem[];
+}
+
+export function LandingThemes({ cmsThemes }: LandingThemesProps) {
+  const defaultThemes = [
     {
       id: "grocery",
       name: "Shwapno Express",
@@ -48,6 +53,26 @@ export function LandingThemes() {
       demoUrl: "https://demo.bdbazz.com",
     },
   ];
+
+  const themes =
+    cmsThemes && cmsThemes.length > 0
+      ? cmsThemes
+          .filter((t) => t.is_active)
+          .map((t) => {
+            const fallback = defaultThemes.find((d) => d.id === t.id) || defaultThemes[0];
+            return {
+              id: t.id,
+              name: t.title || fallback.name,
+              category: t.category || fallback.category,
+              description: t.description || fallback.description,
+              badge: t.badge || fallback.badge,
+              badgeColor: t.badge_color || fallback.badgeColor,
+              accentColor: fallback.accentColor,
+              features: fallback.features,
+              demoUrl: t.preview_url || fallback.demoUrl,
+            };
+          })
+      : defaultThemes;
 
   return (
     <section id="themes" className="py-20 bg-stone-950 text-white relative">

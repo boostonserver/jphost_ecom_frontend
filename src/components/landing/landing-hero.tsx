@@ -1,7 +1,22 @@
 import { ArrowRight, CheckCircle2, ChevronRight, ExternalLink, Play, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
+import type { LandingHeroSettings } from "@/services/platform";
 
-export function LandingHero() {
+interface LandingHeroProps {
+  cmsHero?: Partial<LandingHeroSettings>;
+}
+
+export function LandingHero({ cmsHero }: LandingHeroProps) {
+  const badgeText = cmsHero?.badge || "⚡ Bangladesh's #1 Multi-Tenant E-Commerce SaaS";
+  const headline = cmsHero?.headline || "Launch Your Online Store in Minutes, Not Months";
+  const subheadline =
+    cmsHero?.subheadline ||
+    "The #1 multi-tenant e-commerce platform built for Bangladeshi businesses. Sell nationwide with automated bKash/Nagad payments, instant Steadfast & Pathao courier dispatch, and ultra-fast themes.";
+  const primaryText = cmsHero?.primary_cta_text || "Start 14-Day Free Trial";
+  const primaryLink = cmsHero?.primary_cta_link || "#pricing";
+  const secondaryText = cmsHero?.secondary_cta_text || "Explore Live Demo Store";
+  const secondaryLink = cmsHero?.secondary_cta_link || "https://demo.bdbazz.com";
+
   return (
     <section className="relative overflow-hidden bg-stone-950 text-white pt-12 pb-20 sm:pt-20 sm:pb-28">
       {/* Background Lighting Gradients */}
@@ -19,45 +34,38 @@ export function LandingHero() {
         <div className="flex justify-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-900/90 border border-stone-800 text-xs text-stone-300 shadow-inner">
             <span className="flex size-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold text-white">BDBazz 2.0 Live</span>
-            <span className="text-stone-500">•</span>
-            <span className="text-emerald-400 font-medium">Next-Gen Multi-Tenant Platform</span>
+            <span className="font-semibold text-white">{badgeText}</span>
           </div>
         </div>
 
         {/* Main Headline */}
         <div className="mt-8 max-w-4xl mx-auto text-center">
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1]">
-            Launch Your Online Store in{" "}
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
-              Minutes, Not Months
-            </span>
+            {headline}
           </h1>
 
           <p className="mt-6 text-base sm:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed">
-            The #1 multi-tenant e-commerce platform built for Bangladeshi businesses. 
-            Sell nationwide with automated <strong className="text-white">bKash/Nagad</strong> payments, 
-            instant <strong className="text-white">Steadfast &amp; Pathao</strong> courier dispatch, and ultra-fast themes.
+            {subheadline}
           </p>
 
           {/* CTA Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="#pricing"
+              href={primaryLink}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 font-black text-sm px-8 py-4 rounded-xl shadow-xl hover:shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              <span>Start 14-Day Free Trial</span>
+              <span>{primaryText}</span>
               <ArrowRight className="size-4 stroke-[2.5]" />
             </Link>
 
             <a
-              href="https://demo.bdbazz.com"
+              href={secondaryLink}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-stone-900/90 hover:bg-stone-800 text-white font-bold text-sm px-7 py-4 rounded-xl border border-stone-800 hover:border-stone-700 shadow-md transition-all group"
             >
               <span className="size-2 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
-              <span>Explore Live Demo Store</span>
+              <span>{secondaryText}</span>
               <ExternalLink className="size-3.5 text-stone-400 group-hover:text-amber-400 transition-colors" />
             </a>
           </div>

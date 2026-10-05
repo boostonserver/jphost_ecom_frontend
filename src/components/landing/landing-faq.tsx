@@ -2,11 +2,16 @@
 
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import type { LandingFaqItem } from "@/services/platform";
 
-export function LandingFaq() {
+interface LandingFaqProps {
+  cmsFaqs?: LandingFaqItem[];
+}
+
+export function LandingFaq({ cmsFaqs }: LandingFaqProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = [
+  const defaultFaqs = [
     {
       q: "Can I connect my own custom domain (e.g. www.mybrand.com)?",
       a: "Yes, absolutely! Every store gets a free yourbrand.bdbazz.com subdomain instantly. You can easily point your own custom domain (.com, .com.bd, .net, etc.) to your BDBazz store from your Dokan Admin with free automated SSL encryption.",
@@ -32,6 +37,11 @@ export function LandingFaq() {
       a: "No! BDBazz charges 0% transaction commission on all plans. All the money you earn from your customers goes 100% directly into your own bank or mobile banking accounts.",
     },
   ];
+
+  const faqs =
+    cmsFaqs && cmsFaqs.length > 0
+      ? cmsFaqs.map((f) => ({ q: f.question, a: f.answer }))
+      : defaultFaqs;
 
   return (
     <section id="faq" className="py-20 bg-stone-900 border-t border-stone-800 text-white relative">
