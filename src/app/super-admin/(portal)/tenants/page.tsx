@@ -45,15 +45,15 @@ export default function TenantsPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Tenants</h1>
+          <h1 className="text-2xl font-bold">Stores & Merchants</h1>
           <p className="text-muted-foreground text-sm">
-            Every store on the platform, and what state it is in.
+            All merchant stores running on BDBazz SaaS platform.
           </p>
         </div>
 
         {canPlatform(user, "tenant.create") && (
           <Link href="/super-admin/tenants/new">
-            <Button>New tenant</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Create New Store</Button>
           </Link>
         )}
       </div>

@@ -36,11 +36,11 @@ export default function PlatformDashboardPage() {
       {data && (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Stat label="Active tenants" value={String(data.tenants.active ?? 0)} />
-            <Stat label="Monthly recurring" value={formatMoney(data.mrr, "BDT")} />
-            <Stat label="Outstanding" value={formatMoney(data.outstanding_total, "BDT")} />
+            <Stat label="Active Stores" value={String(data.tenants.active ?? 0)} />
+            <Stat label="Monthly recurring (MRR)" value={formatMoney(data.mrr, "BDT")} />
+            <Stat label="Outstanding Invoices" value={formatMoney(data.outstanding_total, "BDT")} />
             <Stat
-              label="Suspended"
+              label="Suspended Stores"
               value={String(data.tenants.suspended ?? 0)}
               tone={(data.tenants.suspended ?? 0) > 0 ? "warning" : undefined}
             />
@@ -49,11 +49,11 @@ export default function PlatformDashboardPage() {
           {(data.provisioning_failures.length > 0 ||
             (data.tenants.provisioning ?? 0) > 0) && (
             <Card className="space-y-3 p-6">
-              <h2 className="font-semibold">Provisioning</h2>
+              <h2 className="font-semibold">Store Provisioning</h2>
 
               {(data.tenants.provisioning ?? 0) > 0 && (
                 <p className="text-muted-foreground text-sm">
-                  {data.tenants.provisioning} tenant(s) still building.
+                  {data.tenants.provisioning} store(s) still building.
                 </p>
               )}
 
