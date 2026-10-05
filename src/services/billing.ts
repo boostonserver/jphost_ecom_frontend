@@ -90,6 +90,18 @@ export interface Invoice {
   payments?: InvoicePayment[];
 }
 
+export interface PaymentInstructions {
+  company_name?: string;
+  bkash_merchant?: string;
+  nagad_merchant?: string;
+  bank_name?: string;
+  account_name?: string;
+  account_number?: string;
+  branch?: string;
+  routing_number?: string;
+  notes?: string;
+}
+
 /**
  * Read-only by design. The platform owns commercial state, so there is no
  * write path here to leave out - the API has none either.
@@ -113,6 +125,14 @@ export const billingService = {
   },
 
   invoice: (id: number) => api.get<Invoice>(`/admin/billing/invoices/${id}`),
+
+  paymentInstructions: () =>
+    api.get<PaymentInstructions>("/admin/billing/payment-instructions"),
+
+  submitProof: (
+    id: number,
+    payload: { method: string; reference: string; amount?: string; notes?: string },
+  ) => api.post<Invoice>(`/admin/billing/invoices/${id}/submit-proof`, payload),
 };
 
 /** Money arrives as a DECIMAL string; format it without ever going via float. */

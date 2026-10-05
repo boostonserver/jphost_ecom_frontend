@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FormAlert } from "@/components/ui/field";
 import { ApiError } from "@/lib/api";
@@ -137,6 +138,15 @@ function PlanCard({ subscription }: { subscription: Subscription }) {
           <Detail label="Cancelled" value={formatDate(subscription.cancelled_at)} />
         )}
       </dl>
+
+      <div className="flex flex-wrap justify-between items-center border-t pt-4 gap-3">
+        <span className="text-xs text-muted-foreground">Manage bills, payment history, or submit transaction confirmations.</span>
+        <Link href="/admin/billing/invoices">
+          <Button size="sm" variant="primary">
+            View Invoices & Pay →
+          </Button>
+        </Link>
+      </div>
     </Card>
   );
 }
