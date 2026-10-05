@@ -1,8 +1,10 @@
+import { headers } from "next/headers";
 import { AnnouncementBar } from "@/components/store/announcement-bar";
 import { SiteFooter } from "@/components/store/site-footer";
 import { SiteHeader } from "@/components/store/site-header";
 import { SkipLink } from "@/components/store/skip-link";
 import { loadNavCategories, loadStoreName } from "@/lib/store-nav";
+import { isCentralHost } from "@/lib/tenant";
 
 /**
  * The storefront shell.
@@ -17,6 +19,16 @@ export default async function StoreLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const incoming = await headers();
+  const host = incoming.get("host") ?? "";
+  const isCentral = isCentralHost(host);
+
+  // When served from central host (bdbazz.com), bypass the store shell so the
+  // dedicated SaaS platform landing page renders with its own navigation and footer.
+  if (isCentral) {
+    return <>{children}</>;
+  }
+
   // In parallel: two independent reads, and the shell should not wait for one
   // to start the other.
   const [categories, storeName] = await Promise.all([

@@ -1,8 +1,10 @@
+import { headers } from "next/headers";
 import { ArrowRight, LayoutGrid, PackageSearch, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { BrandTile } from "@/components/catalog/brand-tile";
 import { HeroCarousel } from "@/components/catalog/hero-carousel";
 import { ProductRail } from "@/components/catalog/product-grid";
+import { SaasLandingPage } from "@/components/landing/saas-landing-page";
 import { FlashSaleBand } from "@/components/store/flash-sale-band";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -13,6 +15,7 @@ import { StoreUnavailable } from "@/components/ui/store-unavailable";
 import { ApiError } from "@/lib/api";
 import { serverFetch } from "@/lib/server-api";
 import { loadStoreName } from "@/lib/store-nav";
+import { isCentralHost } from "@/lib/tenant";
 import { renderStoreTheme } from "@/themes/registry";
 import type {
   Brand,
@@ -97,6 +100,16 @@ async function loadHome(): Promise<HomeData | { unavailable: string }> {
 }
 
 export default async function StoreHomePage() {
+  const incoming = await headers();
+  const host = incoming.get("host") ?? "";
+  const isCentral = isCentralHost(host);
+
+  // When browsing the central platform domain (bdbazz.com), render the BDBazz SaaS Landing Page.
+  // When browsing store domains (e.g. demo.bdbazz.com or client stores), render the active store theme.
+  if (isCentral) {
+    return <SaasLandingPage />;
+  }
+
   const [data, storeName] = await Promise.all([loadHome(), loadStoreName()]);
 
   if ("unavailable" in data) {
