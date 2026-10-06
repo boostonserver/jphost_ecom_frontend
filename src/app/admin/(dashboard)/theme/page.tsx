@@ -468,7 +468,7 @@ export default function AdminThemePage() {
                   <span className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
                 </div>
                 <div className="flex-1 bg-background text-muted-foreground text-[11px] font-mono py-1 px-3 rounded-md border text-center truncate">
-                  https://yourstore.bdbazz.com (Theme Preview: {previewingTheme.id})
+                  https://your-store.com (Theme Preview: {previewingTheme.name})
                 </div>
               </div>
 
