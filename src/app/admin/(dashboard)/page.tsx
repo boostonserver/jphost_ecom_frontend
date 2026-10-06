@@ -4,15 +4,31 @@ import Link from "next/link";
 import { useState } from "react";
 import useSWR from "swr";
 import { formatMoney } from "@/components/catalog/price";
+import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { FormAlert } from "@/components/ui/field";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
+  billingService,
+  formatMoney as formatBillingMoney,
+  type Subscription,
+  type UsageLimit,
+  type UsageFlag,
+  type Invoice,
+} from "@/services/billing";
+import {
   dashboardService,
   type DashboardKpis,
   type DashboardPeriod,
 } from "@/services/dashboard";
+import {
+  ArrowRight,
+  Calendar,
+  FileText,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 
 const PERIODS: { value: DashboardPeriod; label: string }[] = [
   { value: "today", label: "Today" },
@@ -40,6 +56,28 @@ export default function AdminHomePage() {
     { shouldRetryOnError: false, keepPreviousData: true },
   );
 
+  const { data: subscription } = useSWR(
+    "/admin/billing/subscription",
+    () => billingService.subscription(),
+    { shouldRetryOnError: false },
+  );
+
+  const { data: usage } = useSWR(
+    "/admin/billing/usage",
+    () => billingService.usage(),
+    { shouldRetryOnError: false },
+  );
+
+  const { data: invoicesData } = useSWR(
+    "/admin/billing/invoices?per_page=5",
+    () => billingService.invoices({ per_page: 5 }),
+    { shouldRetryOnError: false },
+  );
+
+  const unpaidInvoice = invoicesData?.items?.find(
+    (inv) => inv.status === "issued" || inv.status === "overdue",
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -63,6 +101,14 @@ export default function AdminHomePage() {
           ))}
         </select>
       </div>
+
+      {subscription && (
+        <SubscriptionOverviewCard
+          subscription={subscription}
+          usage={usage}
+          unpaidInvoice={unpaidInvoice}
+        />
+      )}
 
       {error != null && (
         <FormAlert
@@ -400,5 +446,142 @@ function Kpi({
     <Link href={href} className="block">
       {content}
     </Link>
+  );
+}
+
+function getDaysRemaining(endsAt: string | null): number | null {
+  if (!endsAt) return null;
+  const target = new Date(endsAt).getTime();
+  const now = Date.now();
+  const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+}
+
+function SubscriptionOverviewCard({
+  subscription,
+  usage,
+  unpaidInvoice,
+}: {
+  subscription: Subscription;
+  usage?: { limits: UsageLimit[]; flags: UsageFlag[] } | null;
+  unpaidInvoice?: Invoice | null;
+}) {
+  const isTrial = subscription.status === "trialing";
+  const daysLeft = isTrial
+    ? getDaysRemaining(subscription.trial_ends_at)
+    : getDaysRemaining(subscription.current_period_end);
+
+  return (
+    <Card className="overflow-hidden border border-border/70 bg-card p-0 shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-border/60 bg-muted/30 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Sparkles className="size-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-base text-foreground">
+                {subscription.package?.name ?? "Store Plan"}
+              </span>
+              <span
+                className={cn(
+                  "rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider",
+                  isTrial
+                    ? "bg-sky-500/15 text-sky-700 dark:text-sky-300"
+                    : subscription.status === "active"
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+                )}
+              >
+                {subscription.status_label}
+              </span>
+              {daysLeft !== null && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground bg-background border px-2 py-0.5 rounded-md font-medium">
+                  <Calendar className="size-3 text-primary" />
+                  {daysLeft} days remaining {isTrial ? "in trial" : ""}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {formatBillingMoney(subscription.price, subscription.currency)} · {subscription.billing_period_label}
+              {subscription.current_period_end &&
+                ` · Next renewal: ${new Date(subscription.current_period_end).toLocaleDateString()}`}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {unpaidInvoice && (
+            <Link href="/admin/billing/invoices">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1.5 border-amber-300 bg-amber-50/50 text-amber-900 hover:bg-amber-100 text-xs dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+              >
+                <FileText className="size-3.5" />
+                Unpaid Invoice: {unpaidInvoice.number}
+              </Button>
+            </Link>
+          )}
+
+          <Link href="/admin/billing/invoices">
+            <Button size="sm" variant="outline" className="h-8 gap-1 text-xs">
+              <FileText className="size-3.5" />
+              Invoices
+            </Button>
+          </Link>
+
+          <Link href="/admin/billing">
+            <Button
+              size="sm"
+              className="h-8 gap-1 text-xs bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <Layers className="size-3.5" />
+              Manage Plan
+              <ArrowRight className="size-3" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {usage && usage.limits.length > 0 && (
+        <div className="grid grid-cols-2 divide-x divide-y sm:grid-cols-4 sm:divide-y-0 text-xs">
+          {usage.limits.slice(0, 4).map((limit) => {
+            const pct =
+              limit.limit === null || limit.limit === 0
+                ? null
+                : Math.min(100, Math.round((limit.used / limit.limit) * 100));
+
+            return (
+              <div key={limit.feature} className="p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>{limit.label}</span>
+                  <span className="font-semibold text-foreground">
+                    {limit.unlimited
+                      ? `${limit.used} (Unlimited)`
+                      : `${limit.used} / ${limit.limit}`}
+                  </span>
+                </div>
+                {pct !== null && (
+                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        pct >= 90
+                          ? "bg-rose-500"
+                          : pct >= 70
+                            ? "bg-amber-500"
+                            : "bg-primary",
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
   );
 }
