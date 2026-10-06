@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useSWR from "swr";
 import { MediaPicker } from "@/components/catalog/media-picker";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -37,11 +37,16 @@ export default function AdminCategoriesPage() {
 
   const { data, isLoading, mutate } = useSWR(
     "/admin/categories",
-    async () => (await catalogService.admin.categories()).items,
+    () => catalogService.admin.categories(),
     { shouldRetryOnError: false },
   );
 
-  const categories = data ?? [];
+  const categories: Category[] = useMemo(() => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray((data as any)?.items)) return (data as any).items;
+    if (Array.isArray((data as any)?.data)) return (data as any).data;
+    return [];
+  }, [data]);
 
   async function run(action: () => Promise<unknown>, success: string) {
     setNotice(null);
@@ -137,7 +142,8 @@ export default function AdminCategoriesPage() {
               </tr>
             )}
 
-            {categories.map((category) => (
+            {Array.isArray(categories) &&
+              categories.map((category) => (
               <tr key={category.id}>
                 <td className="px-4 py-2">
                   <div
@@ -243,8 +249,9 @@ function CategoryForm({
 
   // Depth 2 is the last level that can hold children, and a category can never
   // be re-parented under itself or its own subtree.
-  const descendants = category ? descendantIds(categories, category.id) : new Set<number>();
-  const parents = categories.filter(
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const descendants = category ? descendantIds(safeCategories, category.id) : new Set<number>();
+  const parents = safeCategories.filter(
     (c) => c.depth < 2 && c.id !== category?.id && !descendants.has(c.id),
   );
 
@@ -412,6 +419,7 @@ function CategoryForm({
 /** Every category beneath `rootId`, so it cannot be offered as its own parent. */
 function descendantIds(categories: Category[], rootId: number): Set<number> {
   const found = new Set<number>([rootId]);
+  if (!Array.isArray(categories)) return found;
 
   // The list is ordered by depth, so one pass reaches every level.
   for (const category of categories) {

@@ -30,6 +30,17 @@ export default function NewProductPage() {
     catalogService.admin.categories(),
   );
 
+  const brandList = Array.isArray(brands)
+    ? brands
+    : Array.isArray(brands?.items)
+      ? brands.items
+      : [];
+  const categoryList = Array.isArray(categories)
+    ? categories
+    : Array.isArray(categories?.items)
+      ? categories.items
+      : [];
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -117,7 +128,7 @@ export default function NewProductPage() {
               className="border-input bg-background h-10 w-full rounded-md border px-3 text-sm"
             >
               <option value="">No brand</option>
-              {brands?.items.map((brand) => (
+              {brandList.map((brand) => (
                 <option key={brand.id} value={brand.id}>
                   {brand.name}
                 </option>
@@ -128,7 +139,7 @@ export default function NewProductPage() {
           <div className="space-y-1.5">
             <label className="block text-sm font-medium">Categories</label>
             <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border p-3">
-              {categories?.items.map((category) => (
+              {categoryList.map((category) => (
                 <label
                   key={category.id}
                   className="flex items-center gap-2 text-sm"
@@ -138,7 +149,7 @@ export default function NewProductPage() {
                   {category.name}
                 </label>
               ))}
-              {categories?.items.length === 0 && (
+              {categoryList.length === 0 && (
                 <p className="text-muted-foreground text-sm">
                   No categories yet.{" "}
                   <Link href="/admin/categories" className="underline">

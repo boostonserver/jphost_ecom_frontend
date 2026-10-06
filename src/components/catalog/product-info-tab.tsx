@@ -17,6 +17,17 @@ export function ProductInfoTab({ product, onRun }: { product: Product; onRun: Ru
     catalogService.admin.categories(),
   );
 
+  const brandList = Array.isArray(brands)
+    ? brands
+    : Array.isArray(brands?.items)
+      ? brands.items
+      : [];
+  const categoryList = Array.isArray(categories)
+    ? categories
+    : Array.isArray(categories?.items)
+      ? categories.items
+      : [];
+
   const selected = new Set((product.categories ?? []).map((c) => c.id));
 
   return (
@@ -68,7 +79,7 @@ export function ProductInfoTab({ product, onRun }: { product: Product; onRun: Ru
             className="border-input bg-background h-10 w-full rounded-md border px-3 text-sm"
           >
             <option value="">No brand</option>
-            {brands?.items.map((brand) => (
+            {brandList.map((brand) => (
               <option key={brand.id} value={brand.id}>
                 {brand.name}
               </option>
@@ -79,7 +90,7 @@ export function ProductInfoTab({ product, onRun }: { product: Product; onRun: Ru
         <div className="space-y-1.5">
           <label className="block text-sm font-medium">Categories</label>
           <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border p-3">
-            {categories?.items.map((category) => (
+            {categoryList.map((category) => (
               <label
                 key={category.id}
                 className="flex items-center gap-2 text-sm"
