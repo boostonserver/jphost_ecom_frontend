@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { usePlatformAuth } from "@/components/platform/platform-auth-provider";
@@ -12,6 +12,15 @@ import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/services/billing";
 import { canPlatform, platformService, type Tenant } from "@/services/platform";
+import {
+  Check,
+  Edit3,
+  ExternalLink,
+  KeyRound,
+  Rocket,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { TenantStatusBadge } from "../page";
 
 export default function TenantDetailPage() {
@@ -22,6 +31,13 @@ export default function TenantDetailPage() {
   const [notice, setNotice] = useState<{ tone: "error" | "success"; message: string } | null>(
     null,
   );
+  const [impersonating, setImpersonating] = useState(false);
+  const [editContactOpen, setEditContactOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [savingContact, setSavingContact] = useState(false);
 
   const { data: tenant, mutate, isLoading } = useSWR(
     `/platform/tenants/${id}`,
@@ -40,6 +56,24 @@ export default function TenantDetailPage() {
     () => platformService.tenantAdmins(id),
     { shouldRetryOnError: false },
   );
+
+  async function handleAutoLogin() {
+    setImpersonating(true);
+    setNotice(null);
+    try {
+      const res = await platformService.impersonate(id);
+      if (res?.url) {
+        window.open(res.url, "_blank");
+      }
+    } catch (e) {
+      setNotice({
+        tone: "error",
+        message: e instanceof ApiError ? e.displayMessage : "Failed to start auto-login session",
+      });
+    } finally {
+      setImpersonating(false);
+    }
+  }
 
   async function run(action: () => Promise<unknown>, success: string) {
     setNotice(null);
@@ -68,14 +102,59 @@ export default function TenantDetailPage() {
           Back to tenants
         </Link>
 
-        <div className="mt-1 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold">{tenant.name}</h1>
-          <TenantStatusBadge status={tenant.status} />
-        </div>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold">{tenant.name}</h1>
+              <TenantStatusBadge status={tenant.status} />
+            </div>
+            <p className="text-muted-foreground font-mono text-sm mt-0.5">
+              {tenant.primary_domain ?? tenant.slug} · {tenant.database}
+            </p>
+          </div>
 
-        <p className="text-muted-foreground font-mono text-sm">
-          {tenant.primary_domain ?? tenant.slug} · {tenant.database}
-        </p>
+          {/* Quick Action Toolbar */}
+          <div className="flex flex-wrap items-center gap-2">
+            {tenant.status === "active" && (
+              <Button
+                onClick={handleAutoLogin}
+                disabled={impersonating}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-2 shadow-sm text-xs h-9 px-4"
+              >
+                <Rocket className="size-4" />
+                {impersonating ? "Connecting..." : "🚀 Login as Store Admin"}
+              </Button>
+            )}
+
+            {tenant.primary_domain && (
+              <a
+                href={`https://${tenant.primary_domain}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium border rounded-md bg-background hover:bg-muted text-foreground transition-colors h-9"
+              >
+                <ExternalLink className="size-3.5 text-muted-foreground" />
+                Visit Storefront
+              </a>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setEditName(tenant.contact_name ?? "");
+                setEditEmail(tenant.contact_email ?? "");
+                setEditPhone(tenant.contact_phone ?? "");
+                setEditPassword("");
+                setEditContactOpen(true);
+              }}
+              className="flex items-center gap-1.5 h-9 text-xs"
+            >
+              <KeyRound className="size-3.5 text-primary" />
+              Edit Credentials
+            </Button>
+          </div>
+        </div>
       </div>
 
       {notice && <FormAlert tone={notice.tone} message={notice.message} />}
@@ -141,7 +220,24 @@ export default function TenantDetailPage() {
         </Card>
 
         <Card className="space-y-3">
-          <CardTitle>Contact</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Contact & Merchant Admin</CardTitle>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setEditName(tenant.contact_name ?? "");
+                setEditEmail(tenant.contact_email ?? "");
+                setEditPhone(tenant.contact_phone ?? "");
+                setEditPassword("");
+                setEditContactOpen(true);
+              }}
+              className="text-xs h-7"
+            >
+              <Edit3 className="size-3 mr-1" />
+              Edit & Reset Password
+            </Button>
+          </div>
           <dl className="space-y-2 text-sm">
             <Row label="Name" value={tenant.contact_name ?? "—"} />
             <Row label="Email" value={tenant.contact_email ?? "—"} />
@@ -254,6 +350,107 @@ export default function TenantDetailPage() {
       <ThemeSettingsCard tenant={tenant} onNotice={setNotice} />
 
       <DangerZone tenant={tenant} onRun={run} />
+
+      {/* Edit Merchant Contact & Reset Password Modal */}
+      {editContactOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <Card className="w-full max-w-md space-y-4 p-6 shadow-2xl border-2 bg-card">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div className="flex items-center gap-2">
+                <KeyRound className="size-5 text-primary" />
+                <h3 className="font-bold text-lg">Edit Merchant & Password</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditContactOpen(false)}
+                className="text-muted-foreground hover:text-foreground text-sm font-semibold p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setSavingContact(true);
+                try {
+                  await platformService.updateTenantContact(id, {
+                    name: editName,
+                    email: editEmail,
+                    phone: editPhone,
+                    password: editPassword || undefined,
+                  });
+                  await mutate();
+                  setEditContactOpen(false);
+                  setNotice({
+                    tone: "success",
+                    message: "Merchant contact details and admin password updated successfully!",
+                  });
+                } catch (err) {
+                  setNotice({
+                    tone: "error",
+                    message: err instanceof ApiError ? err.displayMessage : "Failed to update contact info",
+                  });
+                } finally {
+                  setSavingContact(false);
+                }
+              }}
+              className="space-y-3.5"
+            >
+              <Field
+                label="Merchant Full Name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="e.g. Sizar Babu"
+                required
+              />
+
+              <Field
+                label="Merchant Email (Login Email)"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="e.g. merchant@gmail.com"
+                required
+              />
+
+              <Field
+                label="Phone Number"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="e.g. 01972101994"
+              />
+
+              <div className="space-y-1 pt-1">
+                <Field
+                  label="New Admin Password (Optional)"
+                  type="password"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  placeholder="Enter new password (min 6 chars)"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Leave empty to keep existing password. If entered, the store admin password will be immediately updated.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditContactOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" size="sm" disabled={savingContact}>
+                  {savingContact ? "Saving..." : "Save & Sync"}
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
@@ -359,21 +556,41 @@ function DangerZone({
   tenant,
   onRun,
 }: {
-  tenant: { id: number; slug: string; status: string };
+  tenant: { id: number; slug: string; status: string; database?: string };
   onRun: (action: () => Promise<unknown>, success: string) => Promise<void>;
 }) {
+  const router = useRouter();
   const { user } = usePlatformAuth();
   const [reason, setReason] = useState("");
   const [confirmSlug, setConfirmSlug] = useState("");
+  const [confirmPurgeSlug, setConfirmPurgeSlug] = useState("");
+  const [purging, setPurging] = useState(false);
 
   const canSuspend = canPlatform(user, "tenant.suspend") && tenant.status === "active";
   const canArchive = canPlatform(user, "tenant.delete") && tenant.status !== "archived";
+  const canPurge = canPlatform(user, "tenant.delete");
 
-  if (!canSuspend && !canArchive) return null;
+  if (!canSuspend && !canArchive && !canPurge) return null;
+
+  async function handlePermanentPurge() {
+    if (confirmPurgeSlug !== tenant.slug) return;
+    setPurging(true);
+    try {
+      await platformService.purgeTenant(tenant.id, confirmPurgeSlug);
+      router.push("/super-admin/tenants");
+    } catch (e) {
+      alert(e instanceof ApiError ? e.displayMessage : "Failed to permanently purge tenant");
+    } finally {
+      setPurging(false);
+    }
+  }
 
   return (
     <Card className="border-destructive/30 space-y-5">
-      <CardTitle className="text-destructive">Danger zone</CardTitle>
+      <CardTitle className="text-destructive flex items-center gap-2">
+        <Trash2 className="size-5" />
+        <span>Danger zone</span>
+      </CardTitle>
 
       {canSuspend && (
         <div className="space-y-2">
@@ -418,6 +635,33 @@ function DangerZone({
             }
           >
             Archive
+          </Button>
+        </div>
+      )}
+
+      {/* Permanent Force Delete / Purge */}
+      {canPurge && (
+        <div className="space-y-3 pt-3 border-t border-destructive/20 bg-rose-500/5 p-4 rounded-lg">
+          <h4 className="font-semibold text-destructive text-sm flex items-center gap-1.5">
+            <Trash2 className="size-4" />
+            Permanent Deletion (Force Purge Database & Wipe Store)
+          </h4>
+          <p className="text-muted-foreground text-xs">
+            Permanently drops the MySQL database <strong>({tenant.database ?? `tenant_${tenant.slug}`})</strong>, removes all domain records, and wipes the tenant completely from the platform.
+            <span className="text-destructive font-semibold ml-1">This cannot be undone.</span>
+          </p>
+          <Field
+            label={`Type "${tenant.slug}" to permanently delete`}
+            value={confirmPurgeSlug}
+            onChange={(event) => setConfirmPurgeSlug(event.target.value)}
+            placeholder={tenant.slug}
+          />
+          <Button
+            variant="destructive"
+            disabled={confirmPurgeSlug !== tenant.slug || purging}
+            onClick={handlePermanentPurge}
+          >
+            {purging ? "Purging database..." : "Permanently Delete Store & Database"}
           </Button>
         </div>
       )}

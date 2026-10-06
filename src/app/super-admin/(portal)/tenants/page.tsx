@@ -11,6 +11,7 @@ import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { canPlatform, type TenantStatus } from "@/services/platform";
 import { platformService } from "@/services/platform";
+import { ExternalLink, Rocket, Trash2 } from "lucide-react";
 
 const STATUSES: Array<{ value: string; label: string }> = [
   { value: "", label: "All" },
@@ -25,21 +26,55 @@ export default function TenantsPage() {
   const { user } = usePlatformAuth();
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+  const [impersonatingId, setImpersonatingId] = useState<number | null>(null);
+  const [purgingId, setPurgingId] = useState<number | null>(null);
 
   const {
     data: tenants,
     isLoading,
     error,
+    mutate,
   } = useSWR(
     ["/platform/tenants", status, search],
     async () => (await platformService.tenants({ status, q: search, per_page: 50 })).items,
     {
       shouldRetryOnError: false,
-      // Provisioning finishes out of band, so the list refreshes itself
-      // rather than making the operator reload to find out.
       refreshInterval: 10_000,
     },
   );
+
+  async function handleAutoLogin(tenantId: number) {
+    setImpersonatingId(tenantId);
+    try {
+      const res = await platformService.impersonate(tenantId);
+      if (res?.url) {
+        window.open(res.url, "_blank");
+      }
+    } catch (e) {
+      alert(e instanceof ApiError ? e.displayMessage : "Failed to start auto-login session");
+    } finally {
+      setImpersonatingId(null);
+    }
+  }
+
+  async function handlePurge(tenant: { id: number; slug: string; name: string }) {
+    if (
+      !confirm(
+        `Are you sure you want to PERMANENTLY DELETE "${tenant.name}" (${tenant.slug})?\n\nThis will drop its database and all data immediately. This CANNOT be undone.`
+      )
+    ) {
+      return;
+    }
+    setPurgingId(tenant.id);
+    try {
+      await platformService.purgeTenant(tenant.id, tenant.slug);
+      mutate();
+    } catch (e) {
+      alert(e instanceof ApiError ? e.displayMessage : "Failed to permanently delete tenant");
+    } finally {
+      setPurgingId(null);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -95,12 +130,13 @@ export default function TenantsPage() {
               <th className="px-4 py-3 font-medium">Plan</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Created</th>
+              <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {isLoading && (
               <tr>
-                <td colSpan={5} className="text-muted-foreground px-4 py-6">
+                <td colSpan={6} className="text-muted-foreground px-4 py-6">
                   Loading…
                 </td>
               </tr>
@@ -108,7 +144,7 @@ export default function TenantsPage() {
 
             {tenants?.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-muted-foreground px-4 py-6">
+                <td colSpan={6} className="text-muted-foreground px-4 py-6">
                   No tenants match.
                 </td>
               </tr>
@@ -140,6 +176,57 @@ export default function TenantsPage() {
                   {tenant.created_at
                     ? new Date(tenant.created_at).toLocaleDateString()
                     : "—"}
+                </td>
+                <td className="px-4 py-3 text-right whitespace-nowrap">
+                  <div className="flex items-center justify-end gap-1.5">
+                    {tenant.status === "active" && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 gap-1 text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+                          onClick={() => handleAutoLogin(tenant.id)}
+                          disabled={impersonatingId === tenant.id}
+                          title="Login as Store Admin"
+                        >
+                          <Rocket className={cn("h-3.5 w-3.5", impersonatingId === tenant.id && "animate-spin")} />
+                          Auto-Login
+                        </Button>
+
+                        {tenant.primary_domain && (
+                          <a
+                            href={`https://${tenant.primary_domain}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex h-8 items-center justify-center rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            title="Visit Storefront"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </>
+                    )}
+
+                    {tenant.status === "archived" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                        onClick={() => handlePurge(tenant)}
+                        disabled={purgingId === tenant.id}
+                        title="Permanently Drop & Delete"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {purgingId === tenant.id ? "Purging…" : "Purge"}
+                      </Button>
+                    )}
+
+                    <Link href={`/super-admin/tenants/${tenant.id}`}>
+                      <Button variant="outline" size="sm" className="h-8 text-xs">
+                        Manage
+                      </Button>
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

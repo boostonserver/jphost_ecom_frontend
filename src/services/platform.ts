@@ -297,6 +297,11 @@ export const platformService = {
       body: JSON.stringify({ confirm_slug: confirmSlug }),
       headers: { "Content-Type": "application/json" },
     }),
+  purgeTenant: (id: number, confirmSlug: string) =>
+    api.delete<{ slug: string }>(`/platform/tenants/${id}/purge`, {
+      body: JSON.stringify({ confirm_slug: confirmSlug }),
+      headers: { "Content-Type": "application/json" },
+    }),
   retryProvisioning: (id: number) =>
     api.post<Tenant>(`/platform/tenants/${id}/retry-provisioning`),
   tenantUsage: (id: number) =>
@@ -422,11 +427,21 @@ export const platformService = {
   deleteUser: (id: number) => api.delete<null>(`/platform/users/${id}`),
 
   // --- impersonation ----------------------------------------------------
-  impersonate: (tenantId: number, userId: number, reason: string) =>
+  impersonate: (tenantId: number, userId?: number, reason?: string) =>
     api.post<{ session_id: number; url: string; expires_at: string }>(
       `/platform/tenants/${tenantId}/impersonate`,
-      { user_id: userId, reason },
+      { user_id: userId, reason: reason ?? "One-click support access by Super Admin" },
     ),
+
+  // --- tenant contact & credentials -------------------------------------
+  updateTenantContact: (
+    tenantId: number,
+    payload: { name?: string; email?: string; phone?: string; password?: string },
+  ) =>
+    api.patch<{
+      tenant: { id: number; name: string; contact_name?: string; contact_email?: string; contact_phone?: string };
+      admin?: { id: number; name: string; email: string } | null;
+    }>(`/platform/tenants/${tenantId}/contact`, payload),
 
   // --- themes & category permissions ------------------------------------
   themes: () => api.get<{ items: ThemeItem[] }>("/platform/themes"),
