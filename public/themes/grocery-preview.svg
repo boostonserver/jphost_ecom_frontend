@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="grocery-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#ecfdf5"/>
+    </linearGradient>
+    <linearGradient id="grocery-hero" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+    <filter id="g-shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#grocery-bg)"/>
+
+  <!-- Top Strip -->
+  <rect width="800" height="28" fill="#15803d"/>
+  <text x="400" y="18" fill="#dcfce7" font-family="system-ui, sans-serif" font-size="11" font-weight="600" text-anchor="middle">🥦 FRESH FROM FARM • 1-HOUR SUPERFAST EXPRESS DELIVERY IN DHAKA</text>
+
+  <!-- Header -->
+  <rect y="28" width="800" height="60" fill="#ffffff" filter="url(#g-shadow)"/>
+  <!-- Grocery Brand Logo -->
+  <circle cx="56" cy="58" r="16" fill="#16a34a"/>
+  <path d="M50 62 L55 52 L62 58 Z" fill="#ffffff"/>
+  <text x="80" y="63" fill="#14532d" font-family="system-ui, sans-serif" font-size="18" font-weight="900">SHWAPNO<tspan fill="#16a34a">EXPRESS</tspan></text>
+
+  <!-- Search Bar with Green Focus -->
+  <rect x="250" y="42" width="310" height="34" rx="17" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="272" y="63" fill="#15803d" font-family="system-ui, sans-serif" font-size="12">Search fresh fruits, vegetables, fish, milk...</text>
+
+  <!-- Delivery Pin & Cart -->
+  <rect x="580" y="44" width="90" height="28" rx="6" fill="#f0fdf4"/>
+  <text x="625" y="62" fill="#15803d" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="middle">📍 Dhanmondi</text>
+  <rect x="680" y="42" width="80" height="34" rx="8" fill="#16a34a"/>
+  <text x="720" y="63" fill="#ffffff" font-family="system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">৳ 450 (4)</text>
+
+  <!-- Category Icons Row -->
+  <g transform="translate(40, 96)">
+    <!-- Cat 1: Fruits -->
+    <rect x="0" y="0" width="105" height="32" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
+    <circle cx="18" cy="16" r="8" fill="#fca5a5"/>
+    <text x="34" y="20" fill="#166534" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Fresh Fruits</text>
+
+    <!-- Cat 2: Vegetables -->
+    <rect x="120" y="0" width="115" height="32" rx="16" fill="#16a34a"/>
+    <circle cx="138" cy="16" r="8" fill="#dcfce7"/>
+    <text x="154" y="20" fill="#ffffff" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Vegetables</text>
+
+    <!-- Cat 3: Dairy -->
+    <rect x="250" y="0" width="95" height="32" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
+    <circle cx="268" cy="16" r="8" fill="#93c5fd"/>
+    <text x="284" y="20" fill="#166534" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Dairy &amp; Eggs</text>
+
+    <!-- Cat 4: Meat & Fish -->
+    <rect x="360" y="0" width="110" height="32" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
+    <circle cx="378" cy="16" r="8" fill="#fed7aa"/>
+    <text x="394" y="20" fill="#166534" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Meat &amp; Fish</text>
+
+    <!-- Cat 5: Cooking -->
+    <rect x="485" y="0" width="105" height="32" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
+    <circle cx="503" cy="16" r="8" fill="#fef08a"/>
+    <text x="519" y="20" fill="#166534" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Cooking Oil</text>
+
+    <!-- Cat 6: Snacks -->
+    <rect x="605" y="0" width="115" height="32" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
+    <circle cx="623" cy="16" r="8" fill="#fbcfe8"/>
+    <text x="639" y="20" fill="#166534" font-family="system-ui, sans-serif" font-size="11" font-weight="700">Snacks &amp; Tea</text>
+  </g>
+
+  <!-- Hero Banner -->
+  <rect x="40" y="140" width="720" height="140" rx="12" fill="url(#grocery-hero)" filter="url(#g-shadow)"/>
+  <rect x="65" y="160" width="80" height="20" rx="10" fill="#facc15"/>
+  <text x="105" y="174" fill="#713f12" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">UP TO 35% OFF</text>
+  <text x="65" y="208" fill="#ffffff" font-family="system-ui, sans-serif" font-size="22" font-weight="900">Daily Fresh Organic Kitchen Market</text>
+  <text x="65" y="230" fill="#dcfce7" font-family="system-ui, sans-serif" font-size="12">Directly harvested from Bogura &amp; Rajshahi farms every morning.</text>
+  <rect x="65" y="242" width="120" height="26" rx="6" fill="#ffffff"/>
+  <text x="125" y="259" fill="#16a34a" font-family="system-ui, sans-serif" font-size="11" font-weight="800" text-anchor="middle">Order Fresh Produce</text>
+
+  <!-- Deals of the Day Header -->
+  <text x="40" y="306" fill="#14532d" font-family="system-ui, sans-serif" font-size="15" font-weight="800">DAILY ESSENTIALS (INSTANT ADD)</text>
+
+  <!-- 3 Grocery Product Cards with Instant Quantity Counter -->
+  <!-- Card 1 -->
+  <rect x="40" y="320" width="226" height="154" rx="10" fill="#ffffff" filter="url(#g-shadow)" stroke="#dcfce7"/>
+  <rect x="52" y="332" width="64" height="64" rx="8" fill="#fee2e2"/>
+  <text x="84" y="370" font-size="28" text-anchor="middle">🍅</text>
+  <text x="126" y="348" fill="#14532d" font-family="system-ui, sans-serif" font-size="13" font-weight="700">Native Tomato</text>
+  <text x="126" y="365" fill="#64748b" font-family="system-ui, sans-serif" font-size="11">1 kg pack</text>
+  <text x="126" y="388" fill="#16a34a" font-family="system-ui, sans-serif" font-size="16" font-weight="900">৳ 65</text>
+  <text x="165" y="388" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" text-decoration="line-through">৳ 80</text>
+  <!-- Quantity Pill (+ / - counter) -->
+  <rect x="52" y="410" width="202" height="34" rx="8" fill="#16a34a"/>
+  <text x="80" y="432" fill="#ffffff" font-family="system-ui, sans-serif" font-size="18" font-weight="700" text-anchor="middle">−</text>
+  <text x="153" y="431" fill="#ffffff" font-family="system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">2 in Cart</text>
+  <text x="226" y="432" fill="#ffffff" font-family="system-ui, sans-serif" font-size="18" font-weight="700" text-anchor="middle">+</text>
+
+  <!-- Card 2 -->
+  <rect x="286" y="320" width="226" height="154" rx="10" fill="#ffffff" filter="url(#g-shadow)" stroke="#dcfce7"/>
+  <rect x="298" y="332" width="64" height="64" rx="8" fill="#fef9c3"/>
+  <text x="330" y="370" font-size="28" text-anchor="middle">🍌</text>
+  <text x="372" y="348" fill="#14532d" font-family="system-ui, sans-serif" font-size="13" font-weight="700">Sabri Banana</text>
+  <text x="372" y="365" fill="#64748b" font-family="system-ui, sans-serif" font-size="11">4 pcs (1 hali)</text>
+  <text x="372" y="388" fill="#16a34a" font-family="system-ui, sans-serif" font-size="16" font-weight="900">৳ 45</text>
+  <rect x="298" y="410" width="202" height="34" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="399" y="431" fill="#16a34a" font-family="system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+ Add to Basket</text>
+
+  <!-- Card 3 -->
+  <rect x="532" y="320" width="228" height="154" rx="10" fill="#ffffff" filter="url(#g-shadow)" stroke="#dcfce7"/>
+  <rect x="544" y="332" width="64" height="64" rx="8" fill="#e0f2fe"/>
+  <text x="576" y="370" font-size="28" text-anchor="middle">🥛</text>
+  <text x="618" y="348" fill="#14532d" font-family="system-ui, sans-serif" font-size="13" font-weight="700">Pasteurized Milk</text>
+  <text x="618" y="365" fill="#64748b" font-family="system-ui, sans-serif" font-size="11">1 Litre pouch</text>
+  <text x="618" y="388" fill="#16a34a" font-family="system-ui, sans-serif" font-size="16" font-weight="900">৳ 90</text>
+  <rect x="544" y="410" width="204" height="34" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="646" y="431" fill="#16a34a" font-family="system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+ Add to Basket</text>
+</svg>

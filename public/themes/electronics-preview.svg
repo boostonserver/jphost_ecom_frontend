@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="tech-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="tech-hero" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#06b6d4" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#tech-bg)"/>
+
+  <!-- Top Announcement Bar -->
+  <rect width="800" height="26" fill="#020617"/>
+  <text x="400" y="17" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="11" font-weight="600" text-anchor="middle">⚡ OFFICIAL WARRANTY • 0% EMI UP TO 12 MONTHS • SAME DAY DISPATCH</text>
+
+  <!-- Header -->
+  <rect y="26" width="800" height="60" fill="#0f172a" stroke="#1e293b"/>
+  <!-- Logo -->
+  <rect x="40" y="42" width="28" height="28" rx="6" fill="url(#cyan-glow)"/>
+  <text x="76" y="61" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="17" font-weight="900" letter-spacing="0.5">TECH<tspan fill="#38bdf8">ZONE</tspan></text>
+
+  <!-- Search Bar -->
+  <rect x="220" y="40" width="340" height="34" rx="8" fill="#1e293b" stroke="#334155"/>
+  <text x="242" y="61" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="12">Search RTX 4090, iPhone 16 Pro, M3 Max MacBook...</text>
+
+  <!-- Header Right Icons -->
+  <rect x="580" y="44" width="86" height="26" rx="6" fill="#1e293b"/>
+  <text x="623" y="61" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="11" font-weight="600" text-anchor="middle">Compare (2)</text>
+  <rect x="680" y="40" width="80" height="34" rx="6" fill="url(#cyan-glow)"/>
+  <text x="720" y="61" fill="#ffffff" font-family="system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">Cart: ৳ 45K</text>
+
+  <!-- Hero Tech Banner -->
+  <rect x="40" y="100" width="720" height="160" rx="10" fill="url(#tech-hero)" stroke="#3730a3"/>
+  <rect x="65" y="122" width="105" height="20" rx="4" fill="#06b6d4" fill-opacity="0.2"/>
+  <text x="117" y="136" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="10" font-weight="800" text-anchor="middle">NEW GENERATION</text>
+  <text x="65" y="174" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="24" font-weight="900">Unleash Ultimate Processing Power</text>
+  <text x="65" y="196" fill="#c7d2fe" font-family="system-ui, sans-serif" font-size="12">Next-gen AI laptops, OLED displays, and ultra-fast NVMe storage.</text>
+  <rect x="65" y="210" width="120" height="30" rx="6" fill="url(#cyan-glow)" filter="url(#glow)"/>
+  <text x="125" y="230" fill="#ffffff" font-family="system-ui, sans-serif" font-size="11" font-weight="800" text-anchor="middle">Order Online →</text>
+
+  <!-- Category Badges Bar -->
+  <text x="40" y="286" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="15" font-weight="800">TRENDING HARDWARE &amp; SMART GEAR</text>
+
+  <!-- 3 Tech Product Cards with Spec Badges -->
+  <!-- Card 1 -->
+  <rect x="40" y="302" width="226" height="174" rx="8" fill="#1e293b" stroke="#334155"/>
+  <rect x="52" y="314" width="202" height="66" rx="6" fill="#0f172a"/>
+  <text x="153" y="352" font-size="24" text-anchor="middle">💻</text>
+  <text x="52" y="396" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="12" font-weight="700">ZenBook Pro OLED 16&quot;</text>
+  <rect x="52" y="406" width="60" height="18" rx="4" fill="#020617"/>
+  <text x="82" y="419" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">32GB RAM</text>
+  <rect x="118" y="406" width="55" height="18" rx="4" fill="#020617"/>
+  <text x="145" y="419" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">1TB SSD</text>
+  <text x="52" y="446" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="15" font-weight="900">৳ 1,42,000</text>
+  <rect x="52" y="456" width="202" height="12" fill="#06b6d4" rx="2" fill-opacity="0.1"/>
+
+  <!-- Card 2 -->
+  <rect x="286" y="302" width="226" height="174" rx="8" fill="#1e293b" stroke="#334155"/>
+  <rect x="298" y="314" width="202" height="66" rx="6" fill="#0f172a"/>
+  <text x="399" y="352" font-size="24" text-anchor="middle">📱</text>
+  <text x="298" y="396" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="12" font-weight="700">Flagship Titan 5G 256GB</text>
+  <rect x="298" y="406" width="60" height="18" rx="4" fill="#020617"/>
+  <text x="328" y="419" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">120Hz OLED</text>
+  <rect x="364" y="406" width="55" height="18" rx="4" fill="#020617"/>
+  <text x="391" y="419" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">5000 mAh</text>
+  <text x="298" y="446" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="15" font-weight="900">৳ 89,500</text>
+
+  <!-- Card 3 -->
+  <rect x="532" y="302" width="228" height="174" rx="8" fill="#1e293b" stroke="#334155"/>
+  <rect x="544" y="314" width="204" height="66" rx="6" fill="#0f172a"/>
+  <text x="646" y="352" font-size="24" text-anchor="middle">🎧</text>
+  <text x="544" y="396" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="12" font-weight="700">Studio Wireless ANC Headset</text>
+  <rect x="544" y="406" width="60" height="18" rx="4" fill="#020617"/>
+  <text x="574" y="419" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">Hi-Res Audio</text>
+  <rect x="610" y="406" width="55" height="18" rx="4" fill="#020617"/>
+  <text x="637" y="419" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9" text-anchor="middle">40h Battery</text>
+  <text x="544" y="446" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="15" font-weight="900">৳ 18,200</text>
+</svg>
