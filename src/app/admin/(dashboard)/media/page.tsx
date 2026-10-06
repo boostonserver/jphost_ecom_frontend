@@ -1,39 +1,54 @@
 "use client";
 
+import {
+  Check,
+  Copy,
+  Image as ImageIcon,
+  Loader2,
+  Plus,
+  Search,
+  Trash2,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import useSWR from "swr";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
-import { Field, FormAlert } from "@/components/ui/field";
+import { Card } from "@/components/ui/card";
+import { FormAlert } from "@/components/ui/field";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { catalogService, type Media } from "@/services/catalog";
 import { can } from "@/types/auth";
 
 /**
- * The media library.
+ * WordPress-style Dedicated Media Library.
  *
- * The full-page counterpart to `MediaPicker`: same data, but this is where an
- * operator manages the library itself rather than picking from it — alt text,
- * deletion, and seeing what is still processing.
- *
- * Conversions run in a queued job, so a fresh upload arrives `processing` with
- * its thumbnail falling back to the original. The list polls only while
- * something is unfinished, then stops.
+ * Matches the user reference design from bookishbd.joypurhost.dev:
+ * - "+ Add New Media" toggle revealing large dashed dropzone
+ * - Type & Date filters + search bar
+ * - Grid of media items with titles
+ * - Full "Attachment details" modal with large preview, metadata, Alt text,
+ *   Caption, Description, and Copy URL button.
  */
 export default function AdminMediaPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("images");
+  const [filterDate, setFilterDate] = useState("all");
   const [selected, setSelected] = useState<Media | null>(null);
+  const [showUploadZone, setShowUploadZone] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
   const [notice, setNotice] = useState<
     { tone: "error" | "success"; message: string } | null
   >(null);
 
   const { data, isLoading, mutate } = useSWR(
     ["/admin/media", search],
-    async () => (await catalogService.admin.media({ q: search, per_page: 60 })).items,
+    async () => (await catalogService.admin.media({ q: search, per_page: 100 })).items,
     {
       shouldRetryOnError: false,
       refreshInterval: (items) =>
@@ -53,8 +68,6 @@ export default function AdminMediaPage() {
     } catch (e) {
       setNotice({
         tone: "error",
-        // A 409 names what still uses the file, so the server's own wording is
-        // more useful here than anything this screen could invent.
         message: e instanceof ApiError ? e.displayMessage : "Something went wrong",
       });
 
@@ -78,197 +91,357 @@ export default function AdminMediaPage() {
     }
   }
 
+  // Filter media items
+  const filteredData = (data ?? []).filter((m) => {
+    if (filterType === "images" && !m.mime.startsWith("image/")) return false;
+    return true;
+  });
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-5">
+      {/* Top Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Media</h1>
-          <p className="text-muted-foreground text-sm">
-            JPEG, PNG, WebP or AVIF. Thumbnails are generated in the background.
+          <h1 className="text-2xl font-bold tracking-tight">Media Library</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Manage, search, and upload reusable media assets across your store.
           </p>
         </div>
 
         {can(user, "media.upload") && (
-          <label className="inline-flex cursor-pointer items-center">
-            <input
-              type="file"
-              multiple
-              accept="image/jpeg,image/png,image/webp,image/avif"
-              className="hidden"
-              onChange={(event) => upload(event.target.files)}
-            />
-            <span className="bg-primary text-primary-foreground inline-flex h-10 items-center rounded-md px-4 text-sm font-medium">
-              {uploading ? "Uploading…" : "Upload images"}
-            </span>
-          </label>
+          <Button
+            type="button"
+            onClick={() => setShowUploadZone((prev) => !prev)}
+            className="flex items-center gap-1.5 shadow-sm"
+          >
+            <Plus className="size-4" />
+            Add New Media
+          </Button>
         )}
       </div>
-
-      <input
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-        placeholder="Search filenames"
-        className="border-input bg-background h-9 w-64 rounded-md border px-3 text-sm"
-      />
 
       {notice && <FormAlert tone={notice.tone} message={notice.message} />}
 
-      {isLoading && <p className="text-muted-foreground text-sm">Loading…</p>}
+      {/* Expandable Upload Dropzone (Screenshot 2) */}
+      {showUploadZone && (
+        <Card className="p-5 border-border shadow-xs animate-in fade-in-50 duration-200">
+          <div className="flex items-center justify-between border-b pb-3 mb-4">
+            <span className="text-sm font-semibold flex items-center gap-2">
+              <UploadCloud className="size-4 text-primary" />
+              Upload New Media
+            </span>
+            <button
+              onClick={() => setShowUploadZone(false)}
+              className="text-muted-foreground hover:text-foreground p-1"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
 
-      {!isLoading && data?.length === 0 && (
-        <Card className="text-muted-foreground text-sm">Nothing uploaded yet.</Card>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              upload(e.dataTransfer.files);
+            }}
+            className={cn(
+              "flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-xl transition-all text-center",
+              isDragging
+                ? "border-primary bg-primary/5"
+                : "border-primary/40 bg-muted/10 hover:border-primary/70",
+            )}
+          >
+            <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-3">
+              {uploading ? (
+                <Loader2 className="size-6 animate-spin" />
+              ) : (
+                <ImageIcon className="size-6" />
+              )}
+            </div>
+            <h3 className="text-base font-bold text-foreground">
+              {uploading ? "Uploading files to server…" : "Drop files anywhere to upload"}
+            </h3>
+            <p className="text-xs text-muted-foreground my-1.5">or</p>
+            <label className="bg-background border border-input hover:bg-muted text-foreground cursor-pointer px-4 py-2 rounded-md font-medium text-xs shadow-xs inline-flex items-center gap-1.5 transition-colors">
+              <input
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                className="hidden"
+                onChange={(e) => upload(e.target.files)}
+                disabled={uploading}
+              />
+              Select Files
+            </label>
+            <p className="text-[11px] text-muted-foreground/80 mt-4">
+              Maximum upload file size: 10 MB per file. Supported: JPG, PNG, WebP, GIF, SVG, AVIF, PDF.
+            </p>
+          </div>
+        </Card>
       )}
 
-      <div className={cn("grid gap-5", selected && "lg:grid-cols-[1fr_320px]")}>
-        <ul
-          className={cn(
-            "grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5",
-            selected ? "lg:grid-cols-5" : "lg:grid-cols-6 xl:grid-cols-8",
-          )}
-        >
-          {data?.map((media) => (
-            <li key={media.id}>
-              <button
-                onClick={() => setSelected(media)}
-                className={cn(
-                  "block w-full overflow-hidden rounded-md border-2 text-left",
-                  selected?.id === media.id ? "border-primary" : "border-transparent",
-                )}
-              >
-                <span className="bg-muted block aspect-square">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={media.thumb_url}
-                    alt={media.alt ?? media.filename}
-                    className="h-full w-full object-cover"
-                  />
-                </span>
-                <span className="text-muted-foreground block truncate p-1 text-xs">
-                  {media.status === "processing" ? "processing…" : media.filename}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      {/* Filter & Search Bar (Screenshot 1) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-muted/20 border rounded-lg p-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="bg-background border border-input rounded-md px-3 py-1.5 font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="images">Images only</option>
+            <option value="all">All media items</option>
+          </select>
 
-        {selected && (
-          <MediaDetails
-            // Remounting on selection resets the alt/title fields, which are
-            // uncontrolled defaults rather than derived from props.
-            key={selected.id}
-            media={selected}
-            canDelete={can(user, "media.delete")}
-            onClose={() => setSelected(null)}
-            onDeleted={() => setSelected(null)}
-            onRun={run}
+          <select
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="bg-background border border-input rounded-md px-3 py-1.5 font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">All dates</option>
+          </select>
+        </div>
+
+        <div className="relative w-full sm:w-72">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search media by title or filename…"
+            className="w-full bg-background border border-input rounded-md pl-3 pr-8 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
-        )}
+          <Search className="size-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        </div>
       </div>
+
+      {isLoading && (
+        <div className="flex items-center justify-center p-16 text-sm text-muted-foreground gap-2">
+          <Loader2 className="size-4 animate-spin" /> Loading media assets…
+        </div>
+      )}
+
+      {!isLoading && filteredData.length === 0 && (
+        <Card className="p-12 text-center text-muted-foreground">
+          <p className="font-semibold text-foreground">No media assets found</p>
+          <p className="text-xs mt-1">Click "Add New Media" above to upload photos.</p>
+        </Card>
+      )}
+
+      {/* Media Grid (Screenshot 1) */}
+      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {filteredData.map((media) => (
+          <li key={media.id}>
+            <button
+              type="button"
+              onClick={() => setSelected(media)}
+              className="group block w-full overflow-hidden rounded-lg border border-border bg-card shadow-xs hover:border-primary/60 transition-all text-left"
+            >
+              <span className="bg-muted block aspect-square overflow-hidden relative">
+                <img
+                  src={media.thumb_url}
+                  alt={media.alt ?? media.filename}
+                  loading="lazy"
+                  className="size-full object-cover transition-transform duration-200 group-hover:scale-105"
+                />
+                {media.status === "processing" && (
+                  <span className="absolute inset-0 bg-background/60 backdrop-blur-xs flex items-center justify-center text-[10px] font-semibold text-muted-foreground">
+                    Processing…
+                  </span>
+                )}
+              </span>
+              <span className="block truncate p-2 text-xs font-medium text-foreground group-hover:text-primary transition-colors">
+                {media.title || media.alt || media.filename}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {/* Attachment Details Modal (Screenshot 3) */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="bg-card flex flex-col md:flex-row max-h-[90vh] w-full max-w-4xl rounded-xl border border-border shadow-2xl overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150">
+            {/* Left Preview Pane */}
+            <div className="flex-1 bg-black/40 flex items-center justify-center p-6 border-b md:border-b-0 md:border-r min-h-[260px] md:min-h-[460px]">
+              <img
+                src={selected.medium_url}
+                alt={selected.alt ?? ""}
+                className="max-h-[75vh] max-w-full rounded object-contain shadow-lg"
+              />
+            </div>
+
+            {/* Right Form Pane */}
+            <div className="w-full md:w-96 flex flex-col min-h-0 bg-card">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b px-5 py-3.5 bg-muted/20">
+                <h3 className="font-bold text-base text-foreground">Attachment details</h3>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded-md"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                {/* File Metadata */}
+                <div className="space-y-1 text-muted-foreground pb-3 border-b text-[11px]">
+                  <p className="truncate">
+                    <strong className="text-foreground">File name:</strong> {selected.filename}
+                  </p>
+                  <p>
+                    <strong className="text-foreground">File type:</strong> {selected.mime}
+                  </p>
+                  <p>
+                    <strong className="text-foreground">File size:</strong>{" "}
+                    {(selected.size / 1024).toFixed(2)} KB
+                  </p>
+                  {selected.width && selected.height && (
+                    <p>
+                      <strong className="text-foreground">Dimensions:</strong>{" "}
+                      {selected.width} by {selected.height} pixels
+                    </p>
+                  )}
+                </div>
+
+                <form
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    const form = new FormData(event.currentTarget);
+                    await run(
+                      () =>
+                        catalogService.admin.updateMedia(selected.id, {
+                          alt: String(form.get("alt") || ""),
+                          title: String(form.get("title") || ""),
+                        }),
+                      "Media details updated successfully",
+                    );
+                  }}
+                  className="space-y-3"
+                >
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1">
+                      Alternative Text
+                    </label>
+                    <input
+                      name="alt"
+                      defaultValue={selected.alt ?? ""}
+                      placeholder="Describe the image for SEO & accessibility"
+                      className="w-full bg-background border border-input rounded-md px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1">
+                      Title
+                    </label>
+                    <input
+                      name="title"
+                      defaultValue={selected.title ?? selected.filename}
+                      className="w-full bg-background border border-input rounded-md px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1">
+                      Caption
+                    </label>
+                    <textarea
+                      rows={2}
+                      name="caption"
+                      placeholder="Optional caption"
+                      className="w-full bg-background border border-input rounded-md p-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      rows={2}
+                      name="description"
+                      placeholder="Optional description"
+                      className="w-full bg-background border border-input rounded-md p-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1">
+                      File URL
+                    </label>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        readOnly
+                        value={selected.medium_url}
+                        className="flex-1 bg-muted/40 border border-input rounded-md px-2.5 py-1 text-[11px] text-muted-foreground font-mono truncate"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(selected.medium_url);
+                          setCopiedUrl(true);
+                          setTimeout(() => setCopiedUrl(false), 2000);
+                        }}
+                        className="shrink-0 text-xs px-2.5 py-1 h-auto"
+                      >
+                        {copiedUrl ? (
+                          <>
+                            <Check className="size-3 text-green-600 mr-1" /> Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="size-3 mr-1" /> Copy URL
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Actions Footer */}
+                  <div className="flex items-center justify-between border-t pt-4 mt-2">
+                    {can(user, "media.delete") && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (confirm("Are you sure you want to permanently delete this media file?")) {
+                            const ok = await run(
+                              () => catalogService.admin.deleteMedia(selected.id),
+                              "Media deleted permanently",
+                            );
+                            if (ok) setSelected(null);
+                          }
+                        }}
+                        className="text-destructive hover:underline inline-flex items-center gap-1 font-medium"
+                      >
+                        <Trash2 className="size-3.5" />
+                        Delete permanently
+                      </button>
+                    )}
+
+                    <Button type="submit" size="sm">
+                      Save Changes
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function MediaDetails({
-  media,
-  canDelete,
-  onClose,
-  onDeleted,
-  onRun,
-}: {
-  media: Media;
-  canDelete: boolean;
-  onClose: () => void;
-  onDeleted: () => void;
-  onRun: (action: () => Promise<unknown>, success: string) => Promise<boolean>;
-}) {
-  const [saving, setSaving] = useState(false);
-
-  return (
-    <Card className="h-fit space-y-4">
-      <div className="flex items-start justify-between gap-2">
-        <CardTitle className="text-base break-all">{media.filename}</CardTitle>
-        <button onClick={onClose} className="text-muted-foreground text-sm underline">
-          Close
-        </button>
-      </div>
-
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={media.medium_url}
-        alt={media.alt ?? ""}
-        className="bg-muted w-full rounded object-contain"
-      />
-
-      <dl className="text-muted-foreground grid grid-cols-2 gap-1 text-xs">
-        <dt>Type</dt>
-        <dd className="text-foreground">{media.mime}</dd>
-        <dt>Size</dt>
-        <dd className="text-foreground">{(media.size / 1024).toFixed(0)} KB</dd>
-        <dt>Dimensions</dt>
-        <dd className="text-foreground">
-          {media.width && media.height ? `${media.width} × ${media.height}` : "—"}
-        </dd>
-        <dt>Status</dt>
-        <dd className="text-foreground">{media.status}</dd>
-      </dl>
-
-      {media.status === "failed" && (
-        <FormAlert
-          message={media.processing_error ?? "Conversions failed; the original is intact."}
-        />
-      )}
-
-      <form
-        className="space-y-3"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          setSaving(true);
-
-          try {
-            await onRun(
-              () =>
-                catalogService.admin.updateMedia(media.id, {
-                  alt: String(form.get("alt") || ""),
-                  title: String(form.get("title") || ""),
-                }),
-              "Media updated",
-            );
-          } finally {
-            setSaving(false);
-          }
-        }}
-      >
-        <Field
-          label="Alt text"
-          name="alt"
-          defaultValue={media.alt ?? ""}
-          placeholder="What the image shows"
-        />
-        <Field label="Title" name="title" defaultValue={media.title ?? ""} />
-
-        <div className="flex gap-2">
-          <Button type="submit" loading={saving}>
-            Save
-          </Button>
-
-          {canDelete && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={async () => {
-                const ok = await onRun(
-                  () => catalogService.admin.deleteMedia(media.id),
-                  "Media deleted",
-                );
-                if (ok) onDeleted();
-              }}
-            >
-              Delete
-            </Button>
-          )}
-        </div>
-      </form>
-    </Card>
-  );
-}

@@ -48,6 +48,11 @@ export function BrandTile({
             src={logo}
             alt={brand.name}
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const fallback = e.currentTarget.parentElement?.querySelector(".brand-wordmark-fallback");
+              if (fallback) (fallback as HTMLElement).style.display = "block";
+            }}
             /*
              * `object-contain` with a height cap, never a width stretch: logos
              * arrive at wildly different aspect ratios and the one thing that
@@ -55,6 +60,14 @@ export function BrandTile({
              */
             className="max-h-12 w-auto max-w-full object-contain"
           />
+          <span
+            className={cn(
+              "brand-wordmark-fallback hidden font-display group-hover:text-primary text-center text-base font-bold tracking-[0.14em] uppercase transition-colors",
+              brand.name.length > 8 && "text-sm tracking-[0.1em]",
+            )}
+          >
+            {brand.name}
+          </span>
           <span className="sr-only">{brand.name}</span>
         </>
       ) : (

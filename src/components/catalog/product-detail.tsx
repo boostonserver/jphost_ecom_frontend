@@ -205,6 +205,9 @@ export function ProductDetail({ product }: { product: Product }) {
                     src={image.thumb_url}
                     alt=""
                     loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
                     className="size-full object-contain p-1"
                   />
                 </button>
