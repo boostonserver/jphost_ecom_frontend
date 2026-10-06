@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import type { Brand, CategoryNode, FlashSale, Product } from "@/services/catalog";
 import { GroceryThemeLayout } from "./grocery/grocery-layout";
+import { FashionThemeLayout } from "./fashion/fashion-layout";
+import { ElectronicsThemeLayout } from "./electronics/electronics-layout";
 
 export interface ThemeHomeProps {
   storeName: string;
@@ -59,11 +61,11 @@ export function renderStoreTheme(themeId: string, props: ThemeHomeProps): ReactN
     case "grocery":
       return <GroceryThemeLayout {...props} />;
     case "fashion":
+      return <FashionThemeLayout {...props} />;
     case "electronics":
+      return <ElectronicsThemeLayout {...props} />;
     case "default":
     default:
-      // Once specific theme components are built, they will be mounted here:
-      // case "fashion": return <FashionThemeLayout {...props} />
       return props.defaultLayout;
   }
 }

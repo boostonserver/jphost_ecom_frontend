@@ -18,6 +18,7 @@ import { serverFetch } from "@/lib/server-api";
 import { loadStoreName } from "@/lib/store-nav";
 import { isCentralHost } from "@/lib/tenant";
 import { renderStoreTheme } from "@/themes/registry";
+import { DemoThemeBar } from "@/components/demo/demo-theme-bar";
 import type {
   Brand,
   CategoryNode,
@@ -100,10 +101,15 @@ async function loadHome(): Promise<HomeData | { unavailable: string }> {
   }
 }
 
-export default async function StoreHomePage() {
+export default async function StoreHomePage(props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const incoming = await headers();
   const host = incoming.get("host") ?? "";
   const isCentral = isCentralHost(host);
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const requestedTheme = typeof searchParams.theme === "string" ? searchParams.theme : null;
+  const isDemo = host.startsWith("demo.") || host.includes("demo") || searchParams.demo === "1" || searchParams.preview === "1";
 
   // When browsing the central platform domain (bdbazz.com), render the BDBazz SaaS Landing Page.
   // When browsing store domains (e.g. demo.bdbazz.com or client stores), render the active store theme.
@@ -195,18 +201,25 @@ export default async function StoreHomePage() {
     </>
   );
 
-  return renderStoreTheme(activeTheme, {
-    storeName,
-    categories,
-    brands,
-    flashSale,
-    featured,
-    fresh,
-    bestsellers,
-    heroProducts,
-    hasAnything,
-    defaultLayout,
-  });
+  const effectiveTheme = requestedTheme || activeTheme;
+
+  return (
+    <>
+      <DemoThemeBar isDemo={isDemo} currentTheme={effectiveTheme} />
+      {renderStoreTheme(effectiveTheme, {
+        storeName,
+        categories,
+        brands,
+        flashSale,
+        featured,
+        fresh,
+        bestsellers,
+        heroProducts,
+        hasAnything,
+        defaultLayout,
+      })}
+    </>
+  );
 }
 
 function Hero({
