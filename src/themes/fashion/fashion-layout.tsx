@@ -26,7 +26,26 @@ export function FashionThemeLayout(props: ThemeHomeProps) {
     return <>{defaultLayout}</>;
   }
 
-  const primaryHero = heroProducts[0] || featured[0];
+  const allAvailable = [...heroProducts, ...featured, ...bestsellers, ...fresh];
+  const primaryHero =
+    allAvailable.find((p) => {
+      const name = p.name.toLowerCase();
+      const cat =
+        p.categories?.map((c) => c.name.toLowerCase() + " " + c.slug.toLowerCase()).join(" ") ?? "";
+      return (
+        cat.includes("fashion") ||
+        cat.includes("apparel") ||
+        cat.includes("clothing") ||
+        name.includes("saree") ||
+        name.includes("panjabi") ||
+        name.includes("kurti") ||
+        name.includes("dress") ||
+        name.includes("silk") ||
+        name.includes("cotton")
+      );
+    }) ||
+    heroProducts[0] ||
+    featured[0];
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-20 selection:bg-amber-900 selection:text-amber-50">

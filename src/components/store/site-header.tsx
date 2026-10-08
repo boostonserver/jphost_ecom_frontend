@@ -34,12 +34,14 @@ export function SiteHeader({
 }) {
   const isGrocery = themeId === "grocery";
   const isFashion = themeId === "fashion";
-  const isDarkToggleAllowed = themeId !== "grocery" && themeId !== "fashion";
+  const isDarkToggleAllowed = themeId === "default";
   const searchPlaceholder = isGrocery
     ? "Search rice, lentils, oil, fresh vegetables…"
     : isFashion
       ? "Search dresses, perfumes, collection…"
-      : "Search products…";
+      : themeId === "electronics"
+        ? "Search laptops, smartphones, tech gear…"
+        : "Search products…";
 
   return (
     <header className="bg-card/85 border-border sticky top-0 z-40 border-b backdrop-blur-md">

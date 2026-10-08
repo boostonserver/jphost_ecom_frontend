@@ -23,7 +23,29 @@ export function ElectronicsThemeLayout(props: ThemeHomeProps) {
     return <>{defaultLayout}</>;
   }
 
-  const primaryHero = heroProducts[0] || featured[0];
+  const allAvailable = [...heroProducts, ...featured, ...bestsellers, ...fresh];
+  const primaryHero =
+    allAvailable.find((p) => {
+      const name = p.name.toLowerCase();
+      const cat =
+        p.categories?.map((c) => c.name.toLowerCase() + " " + c.slug.toLowerCase()).join(" ") ?? "";
+      return (
+        cat.includes("electron") ||
+        cat.includes("gadget") ||
+        cat.includes("phone") ||
+        cat.includes("tech") ||
+        cat.includes("audio") ||
+        name.includes("galaxy") ||
+        name.includes("iphone") ||
+        name.includes("laptop") ||
+        name.includes("watch") ||
+        name.includes("headphone") ||
+        name.includes("earbuds") ||
+        name.includes("camera")
+      );
+    }) ||
+    heroProducts[0] ||
+    featured[0];
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 pb-20 selection:bg-cyan-500 selection:text-black">
