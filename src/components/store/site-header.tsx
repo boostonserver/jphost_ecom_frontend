@@ -5,6 +5,7 @@ import { MainNav } from "@/components/store/main-nav";
 import { MobileNav } from "@/components/store/mobile-nav";
 import { SearchForm } from "@/components/store/search-form";
 import { StoreLogo } from "@/components/store/store-logo";
+import { cn } from "@/lib/utils";
 import type { CategoryNode } from "@/services/catalog";
 
 /**
@@ -34,6 +35,7 @@ export function SiteHeader({
 }) {
   const isGrocery = themeId === "grocery";
   const isFashion = themeId === "fashion";
+  const isElectronics = themeId === "electronics";
   const isDarkToggleAllowed = themeId === "default";
   const searchPlaceholder = isGrocery
     ? "Search rice, lentils, oil, fresh vegetables…"
@@ -44,7 +46,14 @@ export function SiteHeader({
         : "Search products…";
 
   return (
-    <header className="bg-card/85 border-border sticky top-0 z-40 border-b backdrop-blur-md">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b backdrop-blur-md transition-colors",
+        isElectronics
+          ? "bg-[#030712]/95 border-slate-800/80 text-white"
+          : "bg-card/85 border-border"
+      )}
+    >
       <div className="container-page flex h-16 items-center gap-2 sm:gap-3">
         <MobileNav categories={categories} />
 
@@ -96,7 +105,12 @@ export function SiteHeader({
       </Suspense>
 
       {/* Categories, from lg. Its own row for the reasons in the note above. */}
-      <div className="border-border/70 hidden border-t lg:block">
+      <div
+        className={cn(
+          "hidden border-t lg:block",
+          isElectronics ? "border-slate-800/70" : "border-border/70"
+        )}
+      >
         <div className="container-page">
           <MainNav categories={categories} />
         </div>

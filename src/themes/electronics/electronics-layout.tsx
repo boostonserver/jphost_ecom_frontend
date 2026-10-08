@@ -48,9 +48,9 @@ export function ElectronicsThemeLayout(props: ThemeHomeProps) {
     featured[0];
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 pb-20 selection:bg-cyan-500 selection:text-black">
+    <div className="bg-[#030712] text-slate-100 selection:bg-cyan-500 selection:text-black">
       {/* 1. Cyber Tech Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#0f172a] to-[#0b0f19] py-16 sm:py-24 border-b border-slate-800">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#0b0f19] to-[#030712] py-16 sm:py-24 border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 space-y-6">
@@ -193,7 +193,7 @@ export function ElectronicsThemeLayout(props: ThemeHomeProps) {
 
       {/* 8. Brands Carousel */}
       {brands.length > 0 && (
-        <section className="py-12 bg-slate-950/60 border-t border-slate-800/80 mt-12">
+        <section className="py-12 bg-slate-950/80 border-t border-slate-800/80 mt-12">
           <div className="max-w-7xl mx-auto px-4 text-center">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6 block">
               Official Brand Partners

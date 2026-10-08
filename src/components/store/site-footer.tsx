@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { StoreLogo } from "@/components/store/store-logo";
+import { cn } from "@/lib/utils";
 import type { CategoryNode } from "@/services/catalog";
 
 /**
@@ -20,12 +21,23 @@ import type { CategoryNode } from "@/services/catalog";
 export function SiteFooter({
   categories,
   storeName,
+  themeId = "default",
 }: {
   categories: CategoryNode[];
   storeName: string;
+  themeId?: string;
 }) {
+  const isElectronics = themeId === "electronics";
+
   return (
-    <footer className="bg-card border-border mt-16 border-t">
+    <footer
+      className={cn(
+        "border-t transition-colors",
+        isElectronics
+          ? "bg-[#030712] border-slate-800/80 text-slate-300"
+          : "bg-card border-border mt-16"
+      )}
+    >
       <div className="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2 lg:col-span-1">
           <Link href="/" className="flex items-center gap-2">

@@ -42,7 +42,7 @@ export default async function StoreLayout({
   const { themeId, isDemo } = themeInfo;
 
   return (
-    <div data-theme={themeId} className="flex min-h-screen flex-col">
+    <div data-theme={themeId} className="flex min-h-screen flex-col bg-background text-foreground">
       <SkipLink />
       {/* 1. Global Floating Interactive Demo Theme Switcher (Available on all pages for demo store) */}
       {isDemo && <DemoThemeBar isDemo={true} currentTheme={themeId} />}
@@ -57,7 +57,7 @@ export default async function StoreLayout({
         {children}
       </main>
 
-      <SiteFooter categories={categories} storeName={storeName} />
+      <SiteFooter categories={categories} storeName={storeName} themeId={themeId} />
     </div>
   );
 }

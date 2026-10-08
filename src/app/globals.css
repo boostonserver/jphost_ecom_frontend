@@ -293,17 +293,21 @@
 }
 
 /* 3. Electronics & Gadgets (Tech Zone) — Cyber Tech Dark Slate & Cyan */
-[data-theme="electronics"] {
-  --background: #0b0f19;
+[data-theme="electronics"],
+.dark [data-theme="electronics"],
+[data-theme="electronics"].dark,
+[data-theme="electronics"] .dark {
+  color-scheme: dark;
+  --background: #030712;
   --foreground: #f8fafc;
-  --card: #0f172a;
+  --card: #0b0f19;
   --card-foreground: #f8fafc;
-  --popover: #0f172a;
+  --popover: #0b0f19;
   --popover-foreground: #f8fafc;
-  --muted: #1e293b;
+  --muted: #111827;
   --muted-foreground: #94a3b8;
   --border: #1e293b;
-  --input: #334155;
+  --input: #1e293b;
 
   --primary: #0284c7;
   --primary-foreground: #ffffff;
