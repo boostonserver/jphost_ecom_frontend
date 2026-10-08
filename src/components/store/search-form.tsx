@@ -26,10 +26,12 @@ import { cn } from "@/lib/utils";
 export function SearchForm({
   className,
   autoFocus = false,
+  placeholder = "Search products…",
   onSubmitted,
 }: {
   className?: string;
   autoFocus?: boolean;
+  placeholder?: string;
   onSubmitted?: () => void;
 }) {
   const router = useRouter();
@@ -84,7 +86,7 @@ export function SearchForm({
           autoFocus={autoFocus}
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          placeholder="Search products…"
+          placeholder={placeholder}
           className={cn(
             "placeholder:text-muted-foreground h-full min-w-0 flex-1 bg-transparent px-2.5 text-sm outline-none",
             // Chrome and Edge draw their own grey clear "×" inside a

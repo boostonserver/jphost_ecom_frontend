@@ -26,10 +26,17 @@ import type { CategoryNode } from "@/services/catalog";
 export function SiteHeader({
   categories,
   storeName,
+  themeId = "default",
 }: {
   categories: CategoryNode[];
   storeName: string;
+  themeId?: string;
 }) {
+  const isGrocery = themeId === "grocery";
+  const searchPlaceholder = isGrocery
+    ? "Search rice, lentils, oil, fresh vegetables…"
+    : "Search products…";
+
   return (
     <header className="bg-card/85 border-border sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="container-page flex h-16 items-center gap-2 sm:gap-3">
@@ -62,12 +69,15 @@ export function SiteHeader({
         */}
         <Suspense fallback={<div className="hidden h-11 flex-1 md:block" />}>
           <div className="hidden min-w-0 flex-1 md:block">
-            <SearchForm className="mx-auto max-w-sm lg:max-w-md" />
+            <SearchForm
+              className="mx-auto max-w-sm lg:max-w-md"
+              placeholder={searchPlaceholder}
+            />
           </div>
         </Suspense>
 
         <div className="ml-auto flex shrink-0 items-center md:ml-1">
-          <HeaderActions />
+          <HeaderActions showThemeToggle={!isGrocery} />
         </div>
       </div>
 
@@ -75,7 +85,7 @@ export function SiteHeader({
           between the logo and the account menu. */}
       <Suspense fallback={null}>
         <div className="container-page pb-3 md:hidden">
-          <SearchForm />
+          <SearchForm placeholder={searchPlaceholder} />
         </div>
       </Suspense>
 

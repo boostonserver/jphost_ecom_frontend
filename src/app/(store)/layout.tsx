@@ -51,7 +51,7 @@ export default async function StoreLayout({
       {renderThemeAnnouncement(themeId, storeName)}
 
       {/* 3. Main Navigation Header */}
-      <SiteHeader categories={categories} storeName={storeName} />
+      <SiteHeader categories={categories} storeName={storeName} themeId={themeId} />
 
       <main id="main" className="flex-1">
         {children}

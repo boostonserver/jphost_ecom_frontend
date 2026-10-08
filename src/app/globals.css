@@ -230,6 +230,73 @@
     0 24px 48px oklch(0 0 0 / 44%);
 }
 
+/*
+ * ==============================================================================
+ * STOREFRONT MULTI-THEME DESIGN TOKENS
+ * ==============================================================================
+ */
+
+/* 1. Grocery Supermarket (Shwapno Express) — Fresh, vibrant, daytime supermarket */
+[data-theme="grocery"],
+.dark [data-theme="grocery"],
+[data-theme="grocery"].dark,
+[data-theme="grocery"] .dark {
+  color-scheme: light !important;
+  --background: oklch(0.985 0.003 75) !important;
+  --foreground: oklch(0.18 0.01 75) !important;
+  --card: #ffffff !important;
+  --card-foreground: oklch(0.18 0.01 75) !important;
+  --popover: #ffffff !important;
+  --popover-foreground: oklch(0.18 0.01 75) !important;
+  --muted: oklch(0.96 0.005 75) !important;
+  --muted-foreground: oklch(0.50 0.01 75) !important;
+  --border: oklch(0.92 0.005 75) !important;
+  --input: oklch(0.75 0.01 75) !important;
+
+  /* Shwapno Signature Crimson Red Brand */
+  --primary: #dc2626 !important;
+  --primary-foreground: #ffffff !important;
+  --primary-hover: #b91c1c !important;
+  --primary-soft: #fef2f2 !important;
+  --primary-soft-foreground: #991b1b !important;
+  --ring: #dc2626 !important;
+
+  /* Fresh produce accent (Fresh Leaf Green) */
+  --success: #16a34a !important;
+  --success-foreground: #ffffff !important;
+  --success-soft: #f0fdf4 !important;
+}
+
+/* 2. Fashion & Lifestyle (Runway '26) — Editorial Luxury Boutique */
+[data-theme="fashion"] {
+  --primary: #1c1917;
+  --primary-foreground: #fafaf9;
+  --primary-hover: #292524;
+  --primary-soft: #f5f5f4;
+  --primary-soft-foreground: #1c1917;
+  --ring: #d97706;
+}
+
+/* 3. Electronics & Gadgets (Tech Zone) — Cyber Tech Cyan & Royal Blue */
+[data-theme="electronics"] {
+  --primary: #0284c7;
+  --primary-foreground: #ffffff;
+  --primary-hover: #0369a1;
+  --primary-soft: #f0f9ff;
+  --primary-soft-foreground: #0369a1;
+  --ring: #0284c7;
+}
+
+/* 4. Modern Retail (Default) — Classic Emerald */
+[data-theme="default"] {
+  --primary: oklch(0.52 0.113 166);
+  --primary-foreground: oklch(0.99 0.012 166);
+  --primary-hover: oklch(0.45 0.1 166);
+  --primary-soft: oklch(0.955 0.028 166);
+  --primary-soft-foreground: oklch(0.41 0.09 166);
+  --ring: oklch(0.52 0.113 166);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -42,13 +42,20 @@ const DEMO_THEMES = [
 ];
 
 const DEMO_COLORS = [
+  { name: "Crimson Red", hex: "#dc2626", hover: "#b91c1c", bg: "bg-red-600" },
   { name: "Emerald Green", hex: "#16a34a", hover: "#15803d", bg: "bg-emerald-600" },
   { name: "Royal Blue", hex: "#2563eb", hover: "#1d4ed8", bg: "bg-blue-600" },
   { name: "Luxury Amber", hex: "#d97706", hover: "#b45309", bg: "bg-amber-600" },
-  { name: "Crimson Red", hex: "#dc2626", hover: "#b91c1c", bg: "bg-red-600" },
   { name: "Deep Violet", hex: "#7c3aed", hover: "#6d28d9", bg: "bg-purple-600" },
   { name: "Obsidian Slate", hex: "#0f172a", hover: "#020617", bg: "bg-slate-900" },
 ];
+
+const THEME_DEFAULT_COLORS: Record<string, { hex: string; hover: string }> = {
+  grocery: { hex: "#dc2626", hover: "#b91c1c" },
+  fashion: { hex: "#0f172a", hover: "#020617" },
+  electronics: { hex: "#2563eb", hover: "#1d4ed8" },
+  default: { hex: "#16a34a", hover: "#15803d" },
+};
 
 export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
   const router = useRouter();
@@ -61,6 +68,10 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
 
   useEffect(() => {
     setActiveTheme(currentTheme || "default");
+    if (currentTheme === "grocery" && typeof document !== "undefined") {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+    }
   }, [currentTheme]);
 
   // Apply chosen color palette dynamically to CSS variables
@@ -69,18 +80,40 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
     if (typeof document !== "undefined") {
       document.documentElement.style.setProperty("--primary", hex);
       document.documentElement.style.setProperty("--primary-hover", hover);
-      // Also update button and link colors
-      document.documentElement.style.setProperty("--color-primary", hex);
+      document.documentElement.style.setProperty("--ring", hex);
+      const themeContainer = document.querySelector<HTMLElement>("[data-theme]");
+      if (themeContainer) {
+        themeContainer.style.setProperty("--primary", hex);
+        themeContainer.style.setProperty("--primary-hover", hover);
+        themeContainer.style.setProperty("--ring", hex);
+      }
     }
   }
 
   function handleThemeChange(themeId: string) {
     setActiveTheme(themeId);
+    setActiveColor(null);
     setDropdownOpen(false);
 
-    // Save cookie so ANY navigation (products, categories, cart) retains the theme!
     if (typeof document !== "undefined") {
       document.cookie = `demo_theme=${themeId}; path=/; max-age=604800; SameSite=Lax`;
+
+      // Clear any manual inline override so new theme defaults cleanly take over
+      document.documentElement.style.removeProperty("--primary");
+      document.documentElement.style.removeProperty("--primary-hover");
+      document.documentElement.style.removeProperty("--ring");
+      const themeContainer = document.querySelector<HTMLElement>("[data-theme]");
+      if (themeContainer) {
+        themeContainer.style.removeProperty("--primary");
+        themeContainer.style.removeProperty("--primary-hover");
+        themeContainer.style.removeProperty("--ring");
+      }
+
+      // If grocery theme, ensure dark mode is dismissed
+      if (themeId === "grocery") {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.style.colorScheme = "light";
+      }
     }
 
     // Build next URL preserving existing queries
@@ -192,7 +225,11 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
           </span>
           <div className="flex items-center gap-1.5">
             {DEMO_COLORS.map((color) => {
-              const isSelected = activeColor === color.hex;
+              const effectiveColor =
+                activeColor ||
+                THEME_DEFAULT_COLORS[activeTheme]?.hex ||
+                "#16a34a";
+              const isSelected = effectiveColor.toLowerCase() === color.hex.toLowerCase();
               return (
                 <button
                   key={color.name}
@@ -200,11 +237,17 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
                   title={`Apply ${color.name}`}
                   onClick={() => applyColor(color.hex, color.hover)}
                   className={cn(
-                    "size-5 rounded-full transition-transform hover:scale-125 focus:outline-hidden",
+                    "relative flex size-5.5 items-center justify-center rounded-full transition-transform hover:scale-125 focus:outline-hidden",
                     color.bg,
-                    isSelected ? "ring-2 ring-white ring-offset-2 ring-offset-stone-950 scale-110" : "opacity-80 hover:opacity-100",
+                    isSelected
+                      ? "ring-2 ring-white ring-offset-2 ring-offset-stone-950 scale-110 shadow-lg"
+                      : "opacity-75 hover:opacity-100",
                   )}
-                />
+                >
+                  {isSelected && (
+                    <Check className="size-3 text-white drop-shadow stroke-[3]" />
+                  )}
+                </button>
               );
             })}
           </div>

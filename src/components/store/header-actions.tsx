@@ -29,13 +29,17 @@ import { cn } from "@/lib/utils";
  * Client Component. Isolating it here is what lets the shell - and every page
  * under it - render on the server (PRD 5A rule 4).
  */
-export function HeaderActions() {
+export function HeaderActions({
+  showThemeToggle = true,
+}: {
+  showThemeToggle?: boolean;
+} = {}) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
 
   return (
     <div className="flex items-center gap-1">
-      <ThemeToggle />
+      {showThemeToggle && <ThemeToggle />}
       <CartCount />
 
       {loading ? (
