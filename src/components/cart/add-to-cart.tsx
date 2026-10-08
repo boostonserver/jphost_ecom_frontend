@@ -27,12 +27,14 @@ export function AddToCart({
   disabled = false,
   className,
   label,
+  quantity = 1,
 }: {
   variantId: number | null;
   stockStatus?: StockStatus;
   disabled?: boolean;
   className?: string;
   label?: string;
+  quantity?: number;
 }) {
   const [busy, setBusy] = useState(false);
   const [added, setAdded] = useState(false);
@@ -48,7 +50,7 @@ export function AddToCart({
     setError(null);
 
     try {
-      const cart = await cartService.addItem(variantId, 1);
+      const cart = await cartService.addItem(variantId, Math.max(1, quantity));
 
       // Hand SWR the cart the server just returned rather than triggering a
       // refetch: the response is already authoritative.

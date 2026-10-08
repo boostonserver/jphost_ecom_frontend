@@ -108,7 +108,7 @@ export default async function ProductPage({
           : themeId === "fashion"
             ? "bg-[#faf8f5] text-stone-900 min-h-screen pb-16 selection:bg-amber-900 selection:text-amber-50"
             : themeId === "electronics"
-              ? "bg-[#0b0f19] text-slate-100 min-h-screen pb-16 selection:bg-cyan-500 selection:text-black"
+              ? "bg-[#030712] text-slate-100 min-h-screen pb-16 selection:bg-cyan-500 selection:text-black"
               : ""
       }
     >

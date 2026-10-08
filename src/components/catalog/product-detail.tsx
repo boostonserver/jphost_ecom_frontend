@@ -1,6 +1,6 @@
 "use client";
 
-import { Expand } from "lucide-react";
+import { Expand, Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Price, PriceTiers } from "@/components/catalog/price";
@@ -87,6 +87,8 @@ export function ProductDetail({
 
     return picked;
   });
+
+  const [quantity, setQuantity] = useState(1);
 
   const selected = useMemo(
     () => findVariant(variants, selection),
@@ -396,7 +398,48 @@ export function ProductDetail({
             </fieldset>
           ))}
 
-          <div className="border-border border-t pt-5">
+          <div className="border-border border-t pt-5 space-y-4">
+            {/* Quantity Stepper */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">
+                {theme === "grocery" ? "Quantity (পরিমাণ):" : "Quantity:"}
+              </span>
+              <div
+                className={cn(
+                  "flex items-center rounded-lg border",
+                  theme === "electronics"
+                    ? "border-slate-800 bg-slate-900"
+                    : "border-border bg-card",
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
+                  className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+                >
+                  <Minus className="size-3.5" />
+                </button>
+                <span className="w-10 text-center text-sm font-bold tabular-nums">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => q + 1)}
+                  aria-label="Increase quantity"
+                  className="flex size-9 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Plus className="size-3.5" />
+                </button>
+              </div>
+              {theme === "grocery" && selected?.weight && (
+                <span className="text-muted-foreground text-xs font-medium">
+                  ≈ {(Number(selected.weight) * quantity).toFixed(1)} kg total
+                </span>
+              )}
+            </div>
+
             {/*
               Keyed on the variant so switching from a stocked colour to a
               sold-out one resets the transient "Added" state - otherwise the
@@ -407,13 +450,14 @@ export function ProductDetail({
               key={selected?.id ?? "none"}
               variantId={selected?.id ?? null}
               stockStatus={selected?.stock?.status}
+              quantity={quantity}
               className={
                 theme === "grocery"
-                  ? "bg-[#b91c1c] hover:bg-[#991b1b] text-white font-bold h-12 text-base shadow-md hover:shadow-lg w-full sm:w-auto px-8"
+                  ? "bg-primary hover:bg-primary-hover text-primary-foreground font-bold h-12 text-base shadow-md hover:shadow-lg w-full sm:w-auto px-8"
                   : theme === "fashion"
-                    ? "bg-stone-900 hover:bg-stone-800 text-white font-semibold uppercase tracking-widest text-xs h-12 shadow-sm w-full sm:w-auto px-8"
+                    ? "bg-primary hover:bg-primary-hover text-primary-foreground font-semibold uppercase tracking-widest text-xs h-12 shadow-sm w-full sm:w-auto px-8"
                     : theme === "electronics"
-                      ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold h-12 shadow-md shadow-cyan-600/20 w-full sm:w-auto px-8"
+                      ? "bg-primary hover:bg-primary-hover text-primary-foreground font-bold h-12 shadow-md shadow-primary/20 w-full sm:w-auto px-8"
                       : undefined
               }
               label={

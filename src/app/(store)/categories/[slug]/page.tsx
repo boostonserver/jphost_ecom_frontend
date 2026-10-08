@@ -7,6 +7,8 @@ import { StoreImage } from "@/components/ui/store-image";
 import { ApiError } from "@/lib/api";
 import { pickListingParams, toSearchParams } from "@/lib/catalog-query";
 import { serverFetch } from "@/lib/server-api";
+import { resolveStoreTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 import type { Brand, Category, CategoryNode, Product } from "@/services/catalog";
 import type { Paginated } from "@/types/auth";
 
@@ -73,66 +75,90 @@ export default async function CategoryPage({
   const query = toSearchParams(active);
   query.set("category", slug);
 
-  const [products, tree, brands] = await Promise.all([
+  const [products, tree, brands, themeInfo] = await Promise.all([
     serverFetch<Paginated<Product>>(`/products?${query}`),
     serverFetch<{ items: CategoryNode[] }>("/categories", 300),
     serverFetch<{ items: Brand[] }>("/brands", 300),
+    resolveStoreTheme(),
   ]);
 
+  const { themeId } = themeInfo;
+
   return (
-    <Container className="py-8 lg:py-10">
-      <Breadcrumb
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Categories", href: "/categories" },
-          { label: category.name },
-        ]}
-      />
+    <div
+      className={
+        themeId === "grocery"
+          ? "bg-[#fafaf9] text-stone-900 min-h-screen pb-16 selection:bg-red-600 selection:text-white"
+          : themeId === "fashion"
+            ? "bg-[#faf8f5] text-stone-900 min-h-screen pb-16 selection:bg-amber-900 selection:text-amber-50"
+            : themeId === "electronics"
+              ? "bg-[#030712] text-slate-100 min-h-screen pb-16 selection:bg-cyan-500 selection:text-black"
+              : ""
+      }
+    >
+      <Container className="py-8 lg:py-10">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Categories", href: "/categories" },
+            { label: category.name },
+          ]}
+        />
 
-      <header className="mt-6 mb-8">
-        {category.banner && (
-          <StoreImage
-            src={category.banner.url}
-            alt={category.banner.alt ?? category.name}
-            fallbackLabel={category.name}
-            ratio="banner"
-            priority
-            sizes="100vw"
-            className="mb-7 rounded-2xl"
-          />
-        )}
+        <header className="mt-6 mb-8">
+          {category.banner && (
+            <StoreImage
+              src={category.banner.url}
+              alt={category.banner.alt ?? category.name}
+              fallbackLabel={category.name}
+              ratio="banner"
+              priority
+              sizes="100vw"
+              className="mb-7 rounded-2xl"
+            />
+          )}
 
-        <h1 className="text-3xl font-bold lg:text-4xl">{category.name}</h1>
+          <h1
+            className={cn(
+              "text-3xl font-bold lg:text-4xl",
+              themeId === "fashion" && "font-serif tracking-tight text-stone-900",
+              themeId === "grocery" && "font-extrabold tracking-tight text-stone-900",
+              themeId === "electronics" && "font-black tracking-tight text-white",
+            )}
+          >
+            {category.name}
+          </h1>
 
-        {category.description && (
-          <p className="text-muted-foreground mt-3 max-w-2xl">
-            {category.description}
-          </p>
-        )}
+          {category.description && (
+            <p className="text-muted-foreground mt-3 max-w-2xl">
+              {category.description}
+            </p>
+          )}
 
-        {category.children && category.children.length > 0 && (
-          <nav className="mt-6 flex flex-wrap gap-2" aria-label="Subcategories">
-            {category.children.map((child) => (
-              <Link
-                key={child.id}
-                href={`/categories/${child.slug}`}
-                className="border-border hover:border-primary/50 hover:bg-accent rounded-full border px-4 py-1.5 text-sm font-medium transition-colors"
-              >
-                {child.name}
-              </Link>
-            ))}
-          </nav>
-        )}
-      </header>
+          {category.children && category.children.length > 0 && (
+            <nav className="mt-6 flex flex-wrap gap-2" aria-label="Subcategories">
+              {category.children.map((child) => (
+                <Link
+                  key={child.id}
+                  href={`/categories/${child.slug}`}
+                  className="border-border hover:border-primary/50 hover:bg-accent rounded-full border px-4 py-1.5 text-sm font-medium transition-colors"
+                >
+                  {child.name}
+                </Link>
+              ))}
+            </nav>
+          )}
+        </header>
 
-      <ProductListing
-        products={products}
-        categories={tree.items}
-        brands={brands.items}
-        active={active}
-        basePath={`/categories/${slug}`}
-        fixed={["category"]}
-      />
-    </Container>
+        <ProductListing
+          products={products}
+          categories={tree.items}
+          brands={brands.items}
+          active={active}
+          basePath={`/categories/${slug}`}
+          fixed={["category"]}
+        />
+      </Container>
+    </div>
   );
 }
