@@ -18,9 +18,17 @@ export function isValidTheme(theme: string | null | undefined): theme is ValidTh
  * 3. Tenant database configuration: GET /store/theme
  * 4. Fallback default
  */
+export interface ThemeCustomization {
+  primary_color?: string | null;
+  announcement_text?: string | null;
+  announcement_enabled?: boolean;
+  banner_headline?: string | null;
+}
+
 export async function resolveStoreTheme(searchTheme?: string): Promise<{
   themeId: string;
   isDemo: boolean;
+  customization?: ThemeCustomization;
 }> {
   const incoming = await headers();
   const host = incoming.get("host") ?? "";
@@ -45,11 +53,15 @@ export async function resolveStoreTheme(searchTheme?: string): Promise<{
 
   // 3. Tenant active theme from API
   try {
-    const res = await serverFetch<{ active_theme: string }>("/store/theme", 0);
+    const res = await serverFetch<{
+      active_theme: string;
+      customization?: ThemeCustomization;
+    }>("/store/theme", 0);
     const active = res.active_theme || "default";
     return {
       themeId: isValidTheme(active) ? active : "default",
       isDemo,
+      customization: res.customization,
     };
   } catch {
     // If backend unreachable or in demo mode with no selection, default to grocery for demo

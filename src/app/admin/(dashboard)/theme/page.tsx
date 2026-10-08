@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { FormAlert } from "@/components/ui/field";
+import { FormAlert, Field } from "@/components/ui/field";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { adminThemeService, type ThemeInfo } from "@/services/admin-theme";
@@ -45,6 +45,18 @@ const THEME_METADATA: Record<
   },
 };
 
+const COLOR_PRESETS = [
+  { name: "Default (Theme Native)", hex: "" },
+  { name: "Emerald", hex: "#059669" },
+  { name: "Indigo", hex: "#4f46e5" },
+  { name: "Rose", hex: "#e11d48" },
+  { name: "Amber", hex: "#d97706" },
+  { name: "Cyan", hex: "#0891b2" },
+  { name: "Sky", hex: "#0284c7" },
+  { name: "Violet", hex: "#7c3aed" },
+  { name: "Dark Slate", hex: "#1e293b" },
+];
+
 function getThemePreview(theme: ThemeInfo): string {
   if (theme.preview_image) {
     return theme.preview_image.replace(/\.png$/, ".svg");
@@ -82,6 +94,47 @@ export default function AdminThemePage() {
       });
     } finally {
       setActivating(null);
+    }
+  }
+
+  const [customPrimaryColor, setCustomPrimaryColor] = useState<string>("");
+  const [announcementText, setAnnouncementText] = useState<string>("");
+  const [announcementEnabled, setAnnouncementEnabled] = useState<boolean>(true);
+  const [bannerHeadline, setBannerHeadline] = useState<string>("");
+  const [savingCustomization, setSavingCustomization] = useState(false);
+
+  useEffect(() => {
+    if (data?.customization) {
+      if (data.customization.primary_color) setCustomPrimaryColor(data.customization.primary_color);
+      if (data.customization.announcement_text !== undefined) setAnnouncementText(data.customization.announcement_text ?? "");
+      if (data.customization.announcement_enabled !== undefined) setAnnouncementEnabled(data.customization.announcement_enabled ?? true);
+      if (data.customization.banner_headline !== undefined) setBannerHeadline(data.customization.banner_headline ?? "");
+    }
+  }, [data]);
+
+  async function handleSaveCustomization(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingCustomization(true);
+    setNotice(null);
+    try {
+      await adminThemeService.updateCustomization({
+        primary_color: customPrimaryColor || null,
+        announcement_text: announcementText || null,
+        announcement_enabled: announcementEnabled,
+        banner_headline: bannerHeadline || null,
+      });
+      await mutate();
+      setNotice({
+        tone: "success",
+        message: "Theme branding and appearance settings saved successfully!",
+      });
+    } catch (e) {
+      setNotice({
+        tone: "error",
+        message: e instanceof ApiError ? e.displayMessage : "Failed to save theme settings",
+      });
+    } finally {
+      setSavingCustomization(false);
     }
   }
 
@@ -239,6 +292,105 @@ export default function AdminThemePage() {
             </div>
           </div>
         </div>
+      </Card>
+
+      {/* Theme Customization & Store Branding */}
+      <Card className="p-6 space-y-6 border shadow-xs bg-card">
+        <div className="border-b pb-4">
+          <CardTitle className="text-lg">Store Branding &amp; Customization</CardTitle>
+          <CardDescription className="mt-1">
+            Configure primary brand colors, top announcement text, and store headlines. These settings persist for your store.
+          </CardDescription>
+        </div>
+
+        <form onSubmit={handleSaveCustomization} className="space-y-6">
+          {/* Primary Color Picker */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold flex items-center justify-between">
+              <span>Primary Brand Accent Color</span>
+              <span className="text-xs font-mono font-normal text-muted-foreground">
+                {customPrimaryColor || "Default Theme Palette"}
+              </span>
+            </label>
+            <div className="flex flex-wrap gap-2.5 items-center">
+              {COLOR_PRESETS.map((preset) => {
+                const isSelected = (customPrimaryColor || "") === preset.hex;
+                return (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => setCustomPrimaryColor(preset.hex)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all",
+                      isSelected
+                        ? "border-primary ring-2 ring-primary/20 shadow-xs font-semibold"
+                        : "border-border hover:border-foreground/30",
+                    )}
+                  >
+                    {preset.hex ? (
+                      <span
+                        className="size-3.5 rounded-full shrink-0 shadow-xs"
+                        style={{ backgroundColor: preset.hex }}
+                      />
+                    ) : (
+                      <span className="size-3.5 rounded-full border border-dashed border-foreground/40 shrink-0" />
+                    )}
+                    <span>{preset.name}</span>
+                  </button>
+                );
+              })}
+              <div className="flex items-center gap-1.5 ml-1">
+                <input
+                  type="color"
+                  value={customPrimaryColor || "#059669"}
+                  onChange={(e) => setCustomPrimaryColor(e.target.value)}
+                  className="size-7 rounded cursor-pointer border p-0.5 bg-background"
+                  title="Pick custom color"
+                />
+                <span className="text-xs text-muted-foreground">Custom</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Announcement text */}
+            <div className="space-y-2">
+              <Field
+                label="Header Announcement Text"
+                name="announcementText"
+                placeholder="e.g. Free delivery inside Dhaka on orders above ৳1,000!"
+                value={announcementText}
+                onChange={(e) => setAnnouncementText(e.target.value)}
+                hint="Displayed in the top ribbon above the main site navigation."
+              />
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={announcementEnabled}
+                  onChange={(e) => setAnnouncementEnabled(e.target.checked)}
+                  className="rounded border-input text-primary focus:ring-primary"
+                />
+                <span>Show announcement bar on storefront</span>
+              </label>
+            </div>
+
+            {/* Storefront headline / banner */}
+            <Field
+              label="Store Banner Tagline"
+              name="bannerHeadline"
+              placeholder="e.g. Bangladesh's Premier Online Store"
+              value={bannerHeadline}
+              onChange={(e) => setBannerHeadline(e.target.value)}
+              hint="Featured sub-headline for hero banners across product categories."
+            />
+          </div>
+
+          <div className="flex justify-end pt-2 border-t">
+            <Button type="submit" loading={savingCustomization}>
+              Save Appearance &amp; Branding
+            </Button>
+          </div>
+        </form>
       </Card>
 
       {/* Available Themes Catalog (WordPress Appearance -> Themes Grid) */}

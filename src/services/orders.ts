@@ -128,9 +128,13 @@ export const orderService = {
   cancel: (number: string, reason: string) =>
     api.post<Order>(`/orders/${number}/cancel`, { reason }),
 
-  /** Guest lookup needs BOTH the number and the email it was placed with. */
-  lookup: (number: string, email: string) =>
-    api.post<Order>("/orders/lookup", { number, email }),
+  /** Guest lookup needs the order number and the phone or email it was placed with. */
+  lookup: (number: string, identifier: string) =>
+    api.post<Order>("/orders/lookup", {
+      number,
+      identifier,
+      email: identifier,
+    }),
 
   admin: {
     list: (

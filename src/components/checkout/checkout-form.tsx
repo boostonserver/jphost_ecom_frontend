@@ -404,9 +404,21 @@ export function CheckoutForm() {
                   <span className="flex-1">{option.label}</span>
 
                   {option.available ? (
-                    option.code === "cod" && (
+                    option.code === "cod" ? (
                       <span className="text-muted-foreground text-xs">
-                        Pay the courier on arrival
+                        Cash on delivery — pay the courier on arrival
+                      </span>
+                    ) : option.code === "bkash" ? (
+                      <span className="text-pink-600 font-medium text-xs">
+                        bKash payment
+                      </span>
+                    ) : option.code === "nagad" ? (
+                      <span className="text-orange-600 font-medium text-xs">
+                        Nagad payment
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">
+                        Pay online
                       </span>
                     )
                   ) : (

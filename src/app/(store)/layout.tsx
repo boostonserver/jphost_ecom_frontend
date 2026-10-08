@@ -39,16 +39,20 @@ export default async function StoreLayout({
     resolveStoreTheme(),
   ]);
 
-  const { themeId, isDemo } = themeInfo;
+  const { themeId, isDemo, customization } = themeInfo;
 
   return (
-    <div data-theme={themeId} className="flex min-h-screen flex-col bg-background text-foreground">
+    <div
+      data-theme={themeId}
+      style={customization?.primary_color ? ({ "--primary": customization.primary_color, "--ring": customization.primary_color } as React.CSSProperties) : undefined}
+      className="flex min-h-screen flex-col bg-background text-foreground"
+    >
       <SkipLink />
       {/* 1. Global Floating Interactive Demo Theme Switcher (Available on all pages for demo store) */}
       {isDemo && <DemoThemeBar isDemo={true} currentTheme={themeId} />}
 
       {/* 2. Theme-Specific Top Announcement / Header Strip (e.g. Shwapno red delivery strip on grocery) */}
-      {renderThemeAnnouncement(themeId, storeName)}
+      {customization?.announcement_enabled !== false && renderThemeAnnouncement(themeId, storeName)}
 
       {/* 3. Main Navigation Header */}
       <SiteHeader categories={categories} storeName={storeName} themeId={themeId} />

@@ -10,7 +10,7 @@ import { orderService, type Order } from "@/services/orders";
 
 export function OrderLookup() {
   const [number, setNumber] = useState("");
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,14 +21,12 @@ export function OrderLookup() {
     setError(null);
 
     try {
-      setOrder(await orderService.lookup(number.trim(), email.trim()));
+      setOrder(await orderService.lookup(number.trim(), identifier.trim()));
     } catch (caught) {
-      // One message whatever went wrong, matching the API: a different response
-      // for "wrong email" would let someone test whether a number exists.
       setError(
         caught instanceof ApiError
           ? caught.message
-          : "Could not find that order.",
+          : "Could not find that order. Please check your order number and phone/email.",
       );
       setOrder(null);
     } finally {
@@ -45,23 +43,24 @@ export function OrderLookup() {
               label="Order number"
               name="number"
               required
-              placeholder="ORD-2026-000042"
+              placeholder="e.g. ORD-2026-000042"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
             />
             <Field
-              label="Email"
-              name="email"
-              type="email"
+              label="Phone number or Email"
+              name="identifier"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="017XXXXXXXX or user@example.com"
+              hint="Enter the phone number or email used when placing the order."
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
             />
 
             {error && <FormAlert message={error} />}
 
-            <Button type="submit" disabled={busy || !number || !email}>
-              {busy ? "Looking…" : "Find my order"}
+            <Button type="submit" disabled={busy || !number || !identifier}>
+              {busy ? "Tracking…" : "Track My Order"}
             </Button>
           </form>
         </Card>

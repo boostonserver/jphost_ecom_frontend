@@ -19,8 +19,8 @@ export default function TrackOrderPage() {
       <div className="mx-auto max-w-lg">
         <h1 className="text-2xl font-bold sm:text-3xl">Track your order</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Enter the order number from your confirmation, along with the email
-          you used.
+          Enter the order number along with the phone number or email you used
+          when placing the order.
         </p>
         <OrderLookup />
       </div>
