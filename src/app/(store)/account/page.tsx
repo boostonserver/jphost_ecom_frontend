@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowRight, MailCheck, MapPin, Shield, UserRound } from "lucide-react";
+import { ArrowRight, MailCheck, MapPin, Package, Shield, UserRound } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { MyOrders } from "@/components/orders/my-orders";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { FormAlert } from "@/components/ui/field";
@@ -57,12 +58,17 @@ export default function AccountDashboardPage() {
       <Card>
         <CardTitle>Welcome back, {user?.name?.split(" ")[0]}</CardTitle>
         <CardDescription className="mt-1">
-          Your details live here. Order history and returns will appear as those
-          parts of the shop go live.
+          Manage your orders, delivery addresses and personal profile.
         </CardDescription>
       </Card>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Tile
+          href="/account/orders"
+          icon={Package}
+          title="Orders"
+          description="Track and review purchases"
+        />
         <Tile
           href="/account/profile"
           icon={UserRound}
@@ -82,6 +88,17 @@ export default function AccountDashboardPage() {
           description="Password and sessions"
         />
       </div>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">Recent orders</h2>
+          <ButtonLink href="/account/orders" variant="ghost" size="sm">
+            View all
+            <ArrowRight />
+          </ButtonLink>
+        </div>
+        <MyOrders />
+      </section>
 
       <Card className="flex flex-wrap items-center justify-between gap-4">
         <div>
