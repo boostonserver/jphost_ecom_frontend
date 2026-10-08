@@ -5,6 +5,7 @@ import { useState } from "react";
 import { refreshCart } from "@/components/cart/use-cart";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { cartService } from "@/services/cart";
 import type { StockStatus } from "@/services/inventory";
 
@@ -24,10 +25,14 @@ export function AddToCart({
   variantId,
   stockStatus,
   disabled = false,
+  className,
+  label,
 }: {
   variantId: number | null;
   stockStatus?: StockStatus;
   disabled?: boolean;
+  className?: string;
+  label?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [added, setAdded] = useState(false);
@@ -69,10 +74,10 @@ export function AddToCart({
         size="lg"
         disabled={blocked || busy}
         onClick={() => void add()}
-        className="w-full sm:w-auto"
+        className={cn("w-full sm:w-auto", className)}
       >
         {added ? <Check /> : <ShoppingBag />}
-        {added ? "Added to bag" : busy ? "Adding…" : "Add to bag"}
+        {added ? "Added to bag" : busy ? "Adding…" : (label ?? "Add to bag")}
       </Button>
 
       {outOfStock && (

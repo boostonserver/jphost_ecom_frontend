@@ -32,10 +32,7 @@ export function GroceryThemeLayout(props: ThemeHomeProps) {
 
   return (
     <div className="min-h-screen bg-[#fafaf9] text-stone-900 pb-16 selection:bg-red-600 selection:text-white">
-      {/* 1. Shwapno Style Top Express Delivery & Location Strip */}
-      <GroceryHeaderStrip storeName={storeName} />
-
-      {/* 2. Hero Section: Shop by Category Sidebar + Hero Carousel + 4 Mini Promos */}
+      {/* 1. Hero Section: Shop by Category Sidebar + Hero Carousel + 4 Mini Promos */}
       <GroceryHero
         categories={categories}
         heroProducts={heroProducts}

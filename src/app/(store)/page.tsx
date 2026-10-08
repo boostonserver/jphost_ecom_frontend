@@ -18,7 +18,7 @@ import { serverFetch } from "@/lib/server-api";
 import { loadStoreName } from "@/lib/store-nav";
 import { isCentralHost } from "@/lib/tenant";
 import { renderStoreTheme } from "@/themes/registry";
-import { DemoThemeBar } from "@/components/demo/demo-theme-bar";
+import { resolveStoreTheme } from "@/lib/theme";
 import type {
   Brand,
   CategoryNode,
@@ -201,11 +201,11 @@ export default async function StoreHomePage(props: {
     </>
   );
 
-  const effectiveTheme = requestedTheme || activeTheme;
+  const themeInfo = await resolveStoreTheme(requestedTheme ?? undefined);
+  const effectiveTheme = themeInfo.themeId;
 
   return (
     <>
-      <DemoThemeBar isDemo={isDemo} currentTheme={effectiveTheme} />
       {renderStoreTheme(effectiveTheme, {
         storeName,
         categories,

@@ -33,7 +33,13 @@ import type { Product, Variant } from "@/services/catalog";
  *
  * Absent on purpose: delivery estimates, which need an address (Phase 14).
  */
-export function ProductDetail({ product }: { product: Product }) {
+export function ProductDetail({
+  product,
+  theme = "default",
+}: {
+  product: Product;
+  theme?: string;
+}) {
   const variants = useMemo(() => product.variants ?? [], [product.variants]);
 
   // Group the attribute options across every variant, preserving order.
@@ -160,6 +166,30 @@ export function ProductDetail({ product }: { product: Product }) {
         {/* --- gallery -------------------------------------------------- */}
         <div className="lg:sticky lg:top-32 lg:self-start">
           <div className="group relative">
+            {theme === "grocery" && (
+              <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
+                <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-md">
+                  ⚡ Shwapno Express
+                </span>
+                <span className="rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white shadow-md">
+                  🥬 100% Supermarket Fresh
+                </span>
+              </div>
+            )}
+            {theme === "fashion" && (
+              <div className="absolute top-4 left-4 z-10">
+                <span className="rounded-none bg-stone-900/90 text-stone-100 font-semibold px-3 py-1 text-[11px] uppercase tracking-widest backdrop-blur-sm border border-stone-700/50">
+                  Runway '26 Collection
+                </span>
+              </div>
+            )}
+            {theme === "electronics" && (
+              <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
+                <span className="rounded-md bg-cyan-950/90 text-cyan-300 font-bold px-3 py-1 text-xs border border-cyan-500/40 backdrop-blur-sm shadow-md">
+                  🛡️ Official Warranty
+                </span>
+              </div>
+            )}
             <StoreImage
               src={current?.url}
               alt={current?.alt ?? product.name}
@@ -220,6 +250,21 @@ export function ProductDetail({ product }: { product: Product }) {
         <div className="space-y-7">
           <div>
             <div className="flex flex-wrap items-center gap-2">
+              {theme === "grocery" && (
+                <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700 uppercase tracking-wide border border-red-200">
+                  Grocery &amp; Daily Essentials
+                </span>
+              )}
+              {theme === "fashion" && (
+                <span className="rounded-full bg-amber-100/80 px-2.5 py-0.5 text-xs font-semibold text-amber-900 uppercase tracking-wider border border-amber-300/40">
+                  Artisan Lookbook
+                </span>
+              )}
+              {theme === "electronics" && (
+                <span className="rounded-full bg-cyan-950/80 px-2.5 py-0.5 text-xs font-bold text-cyan-300 uppercase tracking-wider border border-cyan-500/30">
+                  Verified Tech Specs
+                </span>
+              )}
               {product.brand && (
                 <Link
                   href={`/brands/${product.brand.slug}`}
@@ -240,7 +285,14 @@ export function ProductDetail({ product }: { product: Product }) {
               )}
             </div>
 
-            <h1 className="mt-2 text-3xl font-bold lg:text-4xl">
+            <h1
+              className={cn(
+                "mt-2 text-3xl font-bold lg:text-4xl",
+                theme === "fashion" && "font-serif tracking-tight text-stone-900",
+                theme === "grocery" && "text-stone-900 font-extrabold tracking-tight",
+                theme === "electronics" && "tracking-tight font-black",
+              )}
+            >
               {product.name}
             </h1>
 
@@ -355,7 +407,99 @@ export function ProductDetail({ product }: { product: Product }) {
               key={selected?.id ?? "none"}
               variantId={selected?.id ?? null}
               stockStatus={selected?.stock?.status}
+              className={
+                theme === "grocery"
+                  ? "bg-[#b91c1c] hover:bg-[#991b1b] text-white font-bold h-12 text-base shadow-md hover:shadow-lg w-full sm:w-auto px-8"
+                  : theme === "fashion"
+                    ? "bg-stone-900 hover:bg-stone-800 text-white font-semibold uppercase tracking-widest text-xs h-12 shadow-sm w-full sm:w-auto px-8"
+                    : theme === "electronics"
+                      ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold h-12 shadow-md shadow-cyan-600/20 w-full sm:w-auto px-8"
+                      : undefined
+              }
+              label={
+                theme === "grocery"
+                  ? "Add to Basket (ব্যাগ-এ যোগ করুন)"
+                  : theme === "fashion"
+                    ? "Add to Shopping Bag"
+                    : theme === "electronics"
+                      ? "Buy Now • Add to Cart"
+                      : undefined
+              }
             />
+
+            {/* --- Theme Assurance & Delivery Trust Box --------------------- */}
+            {theme === "grocery" && (
+              <div className="rounded-xl border border-red-200 bg-red-50/70 p-4 space-y-3 mt-4">
+                <div className="flex items-center justify-between text-xs font-bold text-red-800">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-red-600 animate-ping" />
+                    ⚡ Shwapno Express Delivery
+                  </span>
+                  <span className="text-red-700 font-semibold">Dhaka &amp; Nationwide</span>
+                </div>
+                <p className="text-xs text-red-900/80 leading-relaxed">
+                  Order now &amp; receive fresh at your doorstep in <strong>60–120 minutes</strong> across Dhaka or express delivery nationwide.
+                </p>
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-red-200 text-xs text-stone-700">
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <span>🥬</span> <span>100% Quality &amp; Freshness</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <span>🚚</span> <span>Certified Depots</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <span>🔄</span> <span>Doorstep Instant Return</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <span>📞</span> <span>Order Helpline: 16469</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {theme === "fashion" && (
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 space-y-3 mt-4">
+                <div className="flex items-center gap-2 text-stone-900 font-bold text-xs uppercase tracking-wider font-serif">
+                  <span>✨ The Boutique Guarantee</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700">
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>🎁</span> <span>Bespoke Luxury Gift Packaging</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>🧵</span> <span>Pure Artisan Weave &amp; Natural Dyes</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>🔄</span> <span>14-Day Boutique Exchange</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>🚚</span> <span>Bespoke Nationwide Courier</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {theme === "electronics" && (
+              <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-4 space-y-3 mt-4">
+                <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-wider">
+                  <span>🛡️ Official Tech Protection</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300">
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>🛡️</span> <span>1-Year Official Brand Warranty</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>⚡</span> <span>Same-Day Dhaka Tech Courier</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>💳</span> <span>0% EMI on 18 Major Credit Cards</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span>🔄</span> <span>7-Day Replacement for Defects</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="border-border border-t pt-5">

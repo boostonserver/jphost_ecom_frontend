@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/container";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ApiError } from "@/lib/api";
 import { serverFetch } from "@/lib/server-api";
+import { resolveStoreTheme } from "@/lib/theme";
 import type { Product } from "@/services/catalog";
 import type { Paginated } from "@/types/auth";
 
@@ -91,36 +92,68 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await loadProduct(slug);
+  const [product, themeInfo] = await Promise.all([
+    loadProduct(slug),
+    resolveStoreTheme(),
+  ]);
   const related = await loadRelated(product);
   const category = product.categories?.[0];
+  const { themeId } = themeInfo;
 
   return (
-    <Container className="py-8 lg:py-10">
-      <Breadcrumb
-        className="mb-8"
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Products", href: "/products" },
-          ...(category
-            ? [{ label: category.name, href: `/categories/${category.slug}` }]
-            : []),
-          { label: product.name },
-        ]}
-      />
+    <div
+      className={
+        themeId === "grocery"
+          ? "bg-[#fafaf9] text-stone-900 min-h-screen pb-16 selection:bg-red-600 selection:text-white"
+          : themeId === "fashion"
+            ? "bg-[#faf8f5] text-stone-900 min-h-screen pb-16 selection:bg-amber-900 selection:text-amber-50"
+            : themeId === "electronics"
+              ? "bg-[#0b0f19] text-slate-100 min-h-screen pb-16 selection:bg-cyan-500 selection:text-black"
+              : ""
+      }
+    >
+      <Container className="py-8 lg:py-10">
+        <Breadcrumb
+          className="mb-8"
+          items={[
+            { label: "Home", href: "/" },
+            {
+              label:
+                themeId === "grocery"
+                  ? "Groceries"
+                  : themeId === "fashion"
+                    ? "Collection"
+                    : "Products",
+              href: "/products",
+            },
+            ...(category
+              ? [{ label: category.name, href: `/categories/${category.slug}` }]
+              : []),
+            { label: product.name },
+          ]}
+        />
 
-      <ProductDetail product={product} />
+        <ProductDetail product={product} theme={themeId} />
 
-      {related.length > 0 && (
-        <section className="mt-20">
-          <SectionHeader
-            eyebrow="You might also like"
-            title={category ? `More in ${category.name}` : "More products"}
-            href={category ? `/categories/${category.slug}` : "/products"}
-          />
-          <ProductRail products={related} />
-        </section>
-      )}
-    </Container>
+        {related.length > 0 && (
+          <section className="mt-20">
+            <SectionHeader
+              eyebrow={
+                themeId === "grocery"
+                  ? "Fresh & Handpicked"
+                  : themeId === "fashion"
+                    ? "Complete The Look"
+                    : themeId === "electronics"
+                      ? "Compatible Tech Gear"
+                      : "You might also like"
+              }
+              title={category ? `More in ${category.name}` : "More products"}
+              href={category ? `/categories/${category.slug}` : "/products"}
+            />
+            <ProductRail products={related} />
+          </section>
+        )}
+      </Container>
+    </div>
   );
 }

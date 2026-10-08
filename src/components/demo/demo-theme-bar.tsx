@@ -78,11 +78,17 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
     setActiveTheme(themeId);
     setDropdownOpen(false);
 
+    // Save cookie so ANY navigation (products, categories, cart) retains the theme!
+    if (typeof document !== "undefined") {
+      document.cookie = `demo_theme=${themeId}; path=/; max-age=604800; SameSite=Lax`;
+    }
+
     // Build next URL preserving existing queries
     const params = new URLSearchParams(searchParams?.toString() ?? "");
     params.set("theme", themeId);
     params.set("demo", "1");
     router.push(`?${params.toString()}`);
+    router.refresh();
   }
 
   // Only render on demo store or when ?demo=1 / ?preview_theme is set

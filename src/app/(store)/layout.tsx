@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
-import { AnnouncementBar } from "@/components/store/announcement-bar";
+import { DemoThemeBar } from "@/components/demo/demo-theme-bar";
 import { SiteFooter } from "@/components/store/site-footer";
 import { SiteHeader } from "@/components/store/site-header";
 import { SkipLink } from "@/components/store/skip-link";
 import { loadNavCategories, loadStoreName } from "@/lib/store-nav";
 import { isCentralHost } from "@/lib/tenant";
+import { resolveStoreTheme } from "@/lib/theme";
+import { renderThemeAnnouncement } from "@/themes/registry";
 
 /**
  * The storefront shell.
@@ -29,17 +31,26 @@ export default async function StoreLayout({
     return <>{children}</>;
   }
 
-  // In parallel: two independent reads, and the shell should not wait for one
+  // In parallel: three independent reads, and the shell should not wait for one
   // to start the other.
-  const [categories, storeName] = await Promise.all([
+  const [categories, storeName, themeInfo] = await Promise.all([
     loadNavCategories(),
     loadStoreName(),
+    resolveStoreTheme(),
   ]);
 
+  const { themeId, isDemo } = themeInfo;
+
   return (
-    <>
+    <div data-theme={themeId} className="flex min-h-screen flex-col">
       <SkipLink />
-      <AnnouncementBar />
+      {/* 1. Global Floating Interactive Demo Theme Switcher (Available on all pages for demo store) */}
+      {isDemo && <DemoThemeBar isDemo={true} currentTheme={themeId} />}
+
+      {/* 2. Theme-Specific Top Announcement / Header Strip (e.g. Shwapno red delivery strip on grocery) */}
+      {renderThemeAnnouncement(themeId, storeName)}
+
+      {/* 3. Main Navigation Header */}
       <SiteHeader categories={categories} storeName={storeName} />
 
       <main id="main" className="flex-1">
@@ -47,6 +58,6 @@ export default async function StoreLayout({
       </main>
 
       <SiteFooter categories={categories} storeName={storeName} />
-    </>
+    </div>
   );
 }

@@ -30,12 +30,7 @@ export function FashionThemeLayout(props: ThemeHomeProps) {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-20 selection:bg-amber-900 selection:text-amber-50">
-      {/* 1. Luxury Editorial Announcement Top Strip */}
-      <div className="bg-[#1c1917] text-stone-300 py-2.5 px-4 text-center text-xs tracking-widest uppercase font-medium border-b border-stone-800">
-        <span>✨ Autumn / Winter Collection Drop • Complimentary Bespoke Gift Packaging</span>
-      </div>
-
-      {/* 2. Editorial Fashion Hero Banner */}
+      {/* 1. Editorial Fashion Hero Banner */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#f3ece3] to-[#faf8f5] py-16 sm:py-24 border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">

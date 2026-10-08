@@ -27,12 +27,7 @@ export function ElectronicsThemeLayout(props: ThemeHomeProps) {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 pb-20 selection:bg-cyan-500 selection:text-black">
-      {/* 1. Official Warranty & Tech Strip */}
-      <div className="bg-[#030712] text-cyan-400 py-2.5 px-4 text-center text-xs font-semibold tracking-wider uppercase border-b border-slate-800/80">
-        <span>⚡ 100% Genuine Tech • Official Manufacturer Warranty • 0% EMI Available</span>
-      </div>
-
-      {/* 2. Cyber Tech Hero Section */}
+      {/* 1. Cyber Tech Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#0f172a] to-[#0b0f19] py-16 sm:py-24 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
