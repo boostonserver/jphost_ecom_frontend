@@ -239,14 +239,14 @@ function TechProductRail({
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
         {products.slice(0, 4).map((product) => (
           <div
             key={product.id}
             className="group flex flex-col justify-between bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800 hover:border-cyan-500/40 transition-all shadow-xs"
           >
             <div>
-              <div className="relative aspect-square bg-slate-950 p-4 flex items-center justify-center overflow-hidden">
+              <div className="relative aspect-square bg-slate-950 p-3 sm:p-4 flex items-center justify-center overflow-hidden">
                 {product.primary_image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -255,37 +255,37 @@ function TechProductRail({
                     className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="text-slate-600 text-xs">Electronics Pro</div>
+                  <div className="text-slate-600 text-[10px] sm:text-xs">Electronics Pro</div>
                 )}
-                <span className="absolute top-2.5 right-2.5 bg-slate-800/90 text-cyan-300 text-[10px] font-bold px-2 py-0.5 rounded border border-cyan-500/20">
+                <span className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 bg-slate-800/90 text-cyan-300 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 rounded border border-cyan-500/20">
                   Official
                 </span>
               </div>
 
-              <div className="p-4 space-y-2.5">
+              <div className="p-3 sm:p-4 space-y-1.5 sm:space-y-2.5">
                 <Link
                   href={`/products/${product.slug}`}
-                  className="text-sm font-bold text-slate-100 hover:text-cyan-400 line-clamp-1 block"
+                  className="text-xs sm:text-sm font-bold text-slate-100 hover:text-cyan-400 line-clamp-1 block"
                 >
                   {product.name}
                 </Link>
 
                 {/* Tech Spec Pill Badges */}
-                <div className="flex flex-wrap gap-1.5 pt-0.5">
-                  <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
-                    1 Year Warranty
+                <div className="flex flex-wrap gap-1 sm:gap-1.5 pt-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-mono bg-slate-800 text-slate-300 px-1.5 sm:px-2 py-0.5 rounded border border-slate-700">
+                    Warranty
                   </span>
-                  <span className="text-[10px] font-mono bg-cyan-950/60 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800/40">
+                  <span className="text-[9px] sm:text-[10px] font-mono bg-cyan-950/60 text-cyan-300 px-1.5 sm:px-2 py-0.5 rounded border border-cyan-800/40">
                     Fast Ship
                   </span>
                 </div>
 
-                <div className="pt-1 flex items-baseline gap-2">
-                  <span className="text-base font-extrabold text-cyan-400 font-mono">
+                <div className="pt-1 flex items-baseline gap-1.5 sm:gap-2">
+                  <span className="text-sm sm:text-base font-extrabold text-cyan-400 font-mono">
                     ৳ {product.price_range?.min || "2,500"}
                   </span>
                   {product.price_range?.is_discounted && (
-                    <span className="text-xs text-slate-500 line-through font-mono">
+                    <span className="text-[10px] sm:text-xs text-slate-500 line-through font-mono">
                       ৳ {product.price_range?.base_min}
                     </span>
                   )}
@@ -293,12 +293,12 @@ function TechProductRail({
               </div>
             </div>
 
-            <div className="p-4 pt-0">
+            <div className="p-3 sm:p-4 pt-0">
               <Link
                 href={`/products/${product.slug}`}
-                className="block w-full py-2.5 text-center bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs"
+                className="block w-full py-2 sm:py-2.5 text-center bg-primary hover:bg-primary-hover text-primary-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs"
               >
-                View Specs &amp; Buy
+                View Specs
               </Link>
             </div>
           </div>

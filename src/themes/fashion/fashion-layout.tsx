@@ -217,7 +217,7 @@ function FashionProductRail({
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
         {products.slice(0, 4).map((product) => (
           <div
             key={product.id}
@@ -233,38 +233,38 @@ function FashionProductRail({
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-stone-400 font-serif italic">
+                  <div className="w-full h-full flex items-center justify-center text-stone-400 font-serif italic text-xs sm:text-sm">
                     Fashion Boutique
                   </div>
                 )}
                 {product.price_range?.is_discounted && (
-                  <span className="absolute top-3 left-3 bg-stone-900 text-amber-200 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+                  <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-stone-900 text-amber-200 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded">
                     Sale
                   </span>
                 )}
               </div>
 
-              <div className="p-4 space-y-2">
+              <div className="p-3 sm:p-4 space-y-1.5 sm:space-y-2">
                 <Link
                   href={`/products/${product.slug}`}
-                  className="font-serif text-base font-semibold text-stone-900 hover:text-amber-800 line-clamp-1"
+                  className="font-serif text-sm sm:text-base font-semibold text-stone-900 hover:text-amber-800 line-clamp-1"
                 >
                   {product.name}
                 </Link>
 
                 {/* Color Swatch Dots Mockup */}
-                <div className="flex items-center gap-1.5 pt-1">
-                  <span className="size-3 rounded-full bg-stone-900 border border-white ring-1 ring-stone-300" />
-                  <span className="size-3 rounded-full bg-stone-400 border border-white" />
-                  <span className="size-3 rounded-full bg-amber-700 border border-white" />
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="size-2.5 sm:size-3 rounded-full bg-stone-900 border border-white ring-1 ring-stone-300" />
+                  <span className="size-2.5 sm:size-3 rounded-full bg-stone-400 border border-white" />
+                  <span className="size-2.5 sm:size-3 rounded-full bg-amber-700 border border-white" />
                 </div>
 
-                <div className="pt-2 flex items-baseline gap-2">
-                  <span className="font-serif text-lg font-bold text-stone-900">
+                <div className="pt-1 flex items-baseline gap-1.5 sm:gap-2">
+                  <span className="font-serif text-sm sm:text-lg font-bold text-stone-900">
                     ৳ {product.price_range?.min || "1,200"}
                   </span>
                   {product.price_range?.is_discounted && (
-                    <span className="text-xs text-stone-400 line-through">
+                    <span className="text-[10px] sm:text-xs text-stone-400 line-through">
                       ৳ {product.price_range?.base_min}
                     </span>
                   )}
@@ -272,10 +272,10 @@ function FashionProductRail({
               </div>
             </div>
 
-            <div className="p-4 pt-0">
+            <div className="p-3 sm:p-4 pt-0">
               <Link
                 href={`/products/${product.slug}`}
-                className="block w-full py-2.5 text-center bg-stone-100 hover:bg-primary hover:text-primary-foreground text-stone-800 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
+                className="block w-full py-2 sm:py-2.5 text-center bg-stone-100 hover:bg-primary hover:text-primary-foreground text-stone-800 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
               >
                 Select Options
               </Link>
