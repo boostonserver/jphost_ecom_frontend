@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Brand } from "@/services/catalog";
 
@@ -26,9 +29,10 @@ export function BrandTile({
   brand: Brand;
   className?: string;
 }) {
+  const [imageFailed, setImageFailed] = useState(false);
   // `url` is already the medium conversion (BrandResource), and conversions
   // never enlarge — so for a small logo this is the original at native size.
-  const logo = brand.logo?.url ?? brand.logo?.thumb_url;
+  const logo = !imageFailed ? (brand.logo?.url ?? brand.logo?.thumb_url) : null;
 
   return (
     <Link
@@ -48,11 +52,7 @@ export function BrandTile({
             src={logo}
             alt={brand.name}
             loading="lazy"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              const fallback = e.currentTarget.parentElement?.querySelector(".brand-wordmark-fallback");
-              if (fallback) (fallback as HTMLElement).style.display = "block";
-            }}
+            onError={() => setImageFailed(true)}
             /*
              * `object-contain` with a height cap, never a width stretch: logos
              * arrive at wildly different aspect ratios and the one thing that
@@ -60,14 +60,6 @@ export function BrandTile({
              */
             className="max-h-12 w-auto max-w-full object-contain"
           />
-          <span
-            className={cn(
-              "brand-wordmark-fallback hidden font-display group-hover:text-primary text-center text-base font-bold tracking-[0.14em] uppercase transition-colors",
-              brand.name.length > 8 && "text-sm tracking-[0.1em]",
-            )}
-          >
-            {brand.name}
-          </span>
           <span className="sr-only">{brand.name}</span>
         </>
       ) : (
