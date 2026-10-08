@@ -44,7 +44,7 @@ export function GroceryHero({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 items-start">
         {/* Left: SHOP BY CATEGORY Sidebar */}
         <div className="hidden lg:block bg-white rounded-2xl border border-stone-200/90 shadow-xs overflow-hidden">
-          <div className="bg-[#b91c1c] text-white px-4 py-3 flex items-center justify-between font-bold text-sm tracking-wide uppercase">
+          <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between font-bold text-sm tracking-wide uppercase transition-colors">
             <span className="flex items-center gap-2">
               <LayoutGrid className="size-4 text-amber-300" />
               Shop by Category
@@ -62,10 +62,10 @@ export function GroceryHero({
                   <Link
                     href={`/categories/${cat.slug}`}
                     onMouseEnter={() => setActiveCategory(cat.id)}
-                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-red-50/60 transition-colors"
+                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-stone-700 hover:text-primary hover:bg-primary-soft transition-colors"
                   >
                     <span className="flex items-center gap-2.5 truncate">
-                      <Icon className="size-4 text-stone-400 group-hover:text-red-500 shrink-0" />
+                      <Icon className="size-4 text-stone-400 group-hover:text-primary shrink-0" />
                       <span className="truncate">{cat.name}</span>
                     </span>
                     <ChevronRight className="size-3.5 text-stone-300 shrink-0" />
@@ -85,25 +85,25 @@ export function GroceryHero({
         {/* Right 3 Cols: Hero Banner Carousel + Promo Mini Cards */}
         <div className="lg:col-span-3 space-y-4">
           {/* Main Hero Slider */}
-          <div className="rounded-2xl overflow-hidden bg-gradient-to-r from-red-700 to-amber-600 shadow-md">
+          <div className="rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-amber-600 shadow-md">
             {heroProducts.length > 0 ? (
               <HeroCarousel products={heroProducts} storeName={storeName} />
             ) : (
               <div className="py-16 px-8 text-white flex flex-col justify-center min-h-[300px]">
-                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-300 bg-red-800/60 px-3 py-1 rounded-full w-fit mb-3">
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-300 bg-black/30 px-3 py-1 rounded-full w-fit mb-3">
                   <Sparkles className="size-3.5" />
                   Daily Fresh Market
                 </span>
                 <h1 className="text-3xl sm:text-4xl font-extrabold max-w-lg leading-tight">
                   Taza Bazar &amp; Daily Essentials Delivered in Minutes
                 </h1>
-                <p className="mt-3 text-red-100 text-sm max-w-md">
+                <p className="mt-3 text-white/90 text-sm max-w-md">
                   Shop 100% authentic groceries, fresh produce, meat &amp; household items at the best prices.
                 </p>
                 <div className="mt-6 flex gap-3">
                   <Link
                     href="/products"
-                    className="bg-white text-red-700 hover:bg-red-50 font-bold text-xs px-5 py-2.5 rounded-full shadow-sm transition-all"
+                    className="bg-white text-primary hover:bg-primary-soft font-bold text-xs px-5 py-2.5 rounded-full shadow-sm transition-all"
                   >
                     Shop Groceries Now
                   </Link>

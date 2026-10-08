@@ -68,9 +68,22 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
 
   useEffect(() => {
     setActiveTheme(currentTheme || "default");
-    if (currentTheme === "grocery" && typeof document !== "undefined") {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.style.colorScheme = "light";
+    if (typeof document !== "undefined") {
+      if (currentTheme === "grocery" || currentTheme === "fashion") {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.style.colorScheme = "light";
+      }
+
+      // Check if there is an active custom color in cookie
+      const match = document.cookie.match(/demo_color=([^;]+)/);
+      if (match && match[1]) {
+        const found = DEMO_COLORS.find(
+          (c) => c.hex.toLowerCase() === match[1].toLowerCase(),
+        );
+        if (found) {
+          applyColor(found.hex, found.hover);
+        }
+      }
     }
   }, [currentTheme]);
 
@@ -78,15 +91,18 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
   function applyColor(hex: string, hover: string) {
     setActiveColor(hex);
     if (typeof document !== "undefined") {
-      document.documentElement.style.setProperty("--primary", hex);
-      document.documentElement.style.setProperty("--primary-hover", hover);
-      document.documentElement.style.setProperty("--ring", hex);
-      const themeContainer = document.querySelector<HTMLElement>("[data-theme]");
-      if (themeContainer) {
-        themeContainer.style.setProperty("--primary", hex);
-        themeContainer.style.setProperty("--primary-hover", hover);
-        themeContainer.style.setProperty("--ring", hex);
-      }
+      document.cookie = `demo_color=${hex}; path=/; max-age=604800; SameSite=Lax`;
+
+      const setVars = (el: HTMLElement) => {
+        el.style.setProperty("--primary", hex, "important");
+        el.style.setProperty("--primary-hover", hover, "important");
+        el.style.setProperty("--ring", hex, "important");
+        el.style.setProperty("--primary-soft", `${hex}20`, "important");
+        el.style.setProperty("--primary-soft-foreground", hex, "important");
+      };
+
+      setVars(document.documentElement);
+      document.querySelectorAll<HTMLElement>("[data-theme]").forEach(setVars);
     }
   }
 
@@ -97,20 +113,21 @@ export function DemoThemeBar({ isDemo, currentTheme }: DemoThemeBarProps) {
 
     if (typeof document !== "undefined") {
       document.cookie = `demo_theme=${themeId}; path=/; max-age=604800; SameSite=Lax`;
+      document.cookie = `demo_color=; path=/; max-age=0`;
 
       // Clear any manual inline override so new theme defaults cleanly take over
-      document.documentElement.style.removeProperty("--primary");
-      document.documentElement.style.removeProperty("--primary-hover");
-      document.documentElement.style.removeProperty("--ring");
-      const themeContainer = document.querySelector<HTMLElement>("[data-theme]");
-      if (themeContainer) {
-        themeContainer.style.removeProperty("--primary");
-        themeContainer.style.removeProperty("--primary-hover");
-        themeContainer.style.removeProperty("--ring");
-      }
+      const removeVars = (el: HTMLElement) => {
+        el.style.removeProperty("--primary");
+        el.style.removeProperty("--primary-hover");
+        el.style.removeProperty("--ring");
+        el.style.removeProperty("--primary-soft");
+        el.style.removeProperty("--primary-soft-foreground");
+      };
+      removeVars(document.documentElement);
+      document.querySelectorAll<HTMLElement>("[data-theme]").forEach(removeVars);
 
-      // If grocery theme, ensure dark mode is dismissed
-      if (themeId === "grocery") {
+      // If grocery or fashion theme, ensure dark mode is dismissed
+      if (themeId === "grocery" || themeId === "fashion") {
         document.documentElement.classList.remove("dark");
         document.documentElement.style.colorScheme = "light";
       }

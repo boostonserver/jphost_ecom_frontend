@@ -33,9 +33,13 @@ export function SiteHeader({
   themeId?: string;
 }) {
   const isGrocery = themeId === "grocery";
+  const isFashion = themeId === "fashion";
+  const isDarkToggleAllowed = themeId !== "grocery" && themeId !== "fashion";
   const searchPlaceholder = isGrocery
     ? "Search rice, lentils, oil, fresh vegetables…"
-    : "Search products…";
+    : isFashion
+      ? "Search dresses, perfumes, collection…"
+      : "Search products…";
 
   return (
     <header className="bg-card/85 border-border sticky top-0 z-40 border-b backdrop-blur-md">
@@ -77,7 +81,7 @@ export function SiteHeader({
         </Suspense>
 
         <div className="ml-auto flex shrink-0 items-center md:ml-1">
-          <HeaderActions showThemeToggle={!isGrocery} />
+          <HeaderActions showThemeToggle={isDarkToggleAllowed} />
         </div>
       </div>
 

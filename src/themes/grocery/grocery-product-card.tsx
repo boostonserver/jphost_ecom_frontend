@@ -139,7 +139,7 @@ export function GroceryProductCard({
               "w-full py-2 px-3 text-xs font-bold rounded-full transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95 cursor-pointer",
               added
                 ? "bg-emerald-600 text-white"
-                : "bg-red-600 hover:bg-red-700 text-white",
+                : "bg-primary hover:bg-primary-hover text-primary-foreground",
             )}
           >
             {busy ? (
@@ -162,7 +162,7 @@ export function GroceryProductCard({
         ) : (
           <Link
             href={`/products/${product.slug}`}
-            className="w-full py-2 px-3 text-xs font-bold rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition-colors flex items-center justify-center gap-1.5 border border-red-200"
+            className="w-full py-2 px-3 text-xs font-bold rounded-full bg-primary-soft text-primary-soft-foreground hover:opacity-90 transition-colors flex items-center justify-center gap-1.5 border border-primary/20"
           >
             <ShoppingBag className="size-3.5" />
             <span>View Options</span>

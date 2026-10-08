@@ -49,7 +49,7 @@ export function FashionThemeLayout(props: ThemeHomeProps) {
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
                   href="/products?featured=1"
-                  className="inline-flex items-center justify-center px-8 py-3.5 rounded-none bg-stone-900 text-white font-medium text-xs uppercase tracking-widest hover:bg-stone-800 transition-colors shadow-sm"
+                  className="inline-flex items-center justify-center px-8 py-3.5 rounded-none bg-primary text-primary-foreground font-medium text-xs uppercase tracking-widest hover:bg-primary-hover transition-colors shadow-sm"
                 >
                   Shop the Runway
                 </Link>
@@ -256,7 +256,7 @@ function FashionProductRail({
             <div className="p-4 pt-0">
               <Link
                 href={`/products/${product.slug}`}
-                className="block w-full py-2.5 text-center bg-stone-100 hover:bg-stone-900 hover:text-white text-stone-800 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
+                className="block w-full py-2.5 text-center bg-stone-100 hover:bg-primary hover:text-primary-foreground text-stone-800 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
               >
                 Select Options
               </Link>

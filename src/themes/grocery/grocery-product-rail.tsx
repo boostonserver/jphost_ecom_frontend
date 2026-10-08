@@ -25,12 +25,12 @@ export function GroceryProductRail({
         <div className="flex items-end justify-between gap-4 mb-4 pb-2 border-b border-stone-200">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-5 bg-red-600 rounded-full" />
+              <span className="w-1.5 h-5 bg-primary rounded-full transition-colors" />
               <h2 className="text-base sm:text-lg font-extrabold uppercase tracking-wide text-stone-900">
                 {title}
               </h2>
               {badgeText && (
-                <span className="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full uppercase">
+                <span className="text-[10px] font-bold bg-primary-soft text-primary-soft-foreground px-2 py-0.5 rounded-full uppercase transition-colors">
                   {badgeText}
                 </span>
               )}
@@ -42,7 +42,7 @@ export function GroceryProductRail({
 
           <Link
             href={href}
-            className="text-xs font-bold text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 shrink-0"
+            className="text-xs font-bold text-primary hover:text-primary-hover hover:underline flex items-center gap-1 shrink-0 transition-colors"
           >
             <span>View All</span>
             <ChevronRight className="size-3.5" />

@@ -48,7 +48,7 @@ export function ElectronicsThemeLayout(props: ThemeHomeProps) {
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
                   href="/products?featured=1"
-                  className="inline-flex items-center justify-center px-7 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-lg shadow-cyan-500/20 transition-all"
+                  className="inline-flex items-center justify-center px-7 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary-hover font-bold text-xs uppercase tracking-wider shadow-lg shadow-primary/20 transition-all"
                 >
                   Explore Tech
                 </Link>
@@ -274,7 +274,7 @@ function TechProductRail({
             <div className="p-4 pt-0">
               <Link
                 href={`/products/${product.slug}`}
-                className="block w-full py-2.5 text-center bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs"
+                className="block w-full py-2.5 text-center bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs"
               >
                 View Specs &amp; Buy
               </Link>
