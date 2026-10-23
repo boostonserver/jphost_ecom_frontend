@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { env } from "./env";
-import { tenantFromHost } from "./tenant";
+import { isCustomDomain, normalizeHost, tenantFromHost } from "./tenant";
 import { ApiError, type ApiEnvelope } from "./api";
 
 /**
@@ -58,12 +58,23 @@ async function serverFetch<T>(path: string, revalidate = 60): Promise<T> {
 }
 
 function resolveTarget(host: string, tenant: string | null, path: string) {
-  const activeTenant = tenant ?? env.devTenant;
+  const hostname = normalizeHost(host);
+  const isCustom = isCustomDomain(hostname);
+
+  let tenantHeader: Record<string, string> = {};
+  if (isCustom) {
+    tenantHeader = { "X-Tenant-Domain": hostname };
+  } else {
+    const activeTenant = tenant ?? env.devTenant;
+    if (activeTenant) {
+      tenantHeader = { "X-Tenant": activeTenant };
+    }
+  }
 
   return {
     url: `${env.apiUrl}${path}`,
-    tenantHeader: (activeTenant ? { "X-Tenant": activeTenant } : {}) as Record<string, string>,
-    tenant: activeTenant ?? null,
+    tenantHeader,
+    tenant: isCustom ? hostname : (tenant ?? env.devTenant ?? null),
   };
 }
 

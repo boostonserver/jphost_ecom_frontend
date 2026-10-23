@@ -47,7 +47,22 @@ export function isLoopbackHost(host: string): boolean {
 }
 
 /**
- * Derive the tenant slug from a hostname, or null for a central host.
+ * Check if the host is a custom domain (not central, not loopback, and not a platform subdomain).
+ */
+export function isCustomDomain(host: string): boolean {
+  const hostname = normalizeHost(host);
+  if (!hostname || isCentralHost(hostname) || isLoopbackHost(hostname)) {
+    return false;
+  }
+  const baseDomain = (env.tenantBaseDomain || "bdbazz.com").toLowerCase();
+  if (hostname === baseDomain || hostname.endsWith("." + baseDomain)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Derive the tenant slug from a hostname, or null for a central host or custom domain.
  * Exported separately from the browser helper so server components and
  * middleware can pass the incoming Host header straight in.
  */
@@ -62,11 +77,26 @@ export function tenantFromHost(host: string): string | null {
     return env.devTenant ?? null;
   }
 
-  const [first, ...rest] = hostname.split(".");
+  const baseDomain = (env.tenantBaseDomain || "bdbazz.com").toLowerCase();
 
-  // A bare hostname with no dots (a custom domain in /etc/hosts, say) is not a
-  // subdomain, so there is nothing to read a slug from — let the API decide.
-  return rest.length > 0 && first ? first : null;
+  // If it is a platform subdomain (e.g. demo.bdbazz.com or store.platform.test)
+  if (hostname.endsWith("." + baseDomain)) {
+    const sub = hostname.slice(0, -(baseDomain.length + 1));
+    return sub || null;
+  }
+
+  // If it is a loopback host with subdomain (e.g. demo.localhost)
+  if (isLoopbackHost(hostname) || hostname.endsWith(".localhost")) {
+    const parts = hostname.split(".");
+    if (parts.length > 1 && parts[0] !== "localhost") {
+      return parts[0];
+    }
+    return env.devTenant ?? null;
+  }
+
+  // A custom domain has no subdomain slug on the platform host.
+  // The API resolves it directly by domain name via X-Tenant-Domain.
+  return null;
 }
 
 /**
@@ -127,6 +157,13 @@ export function tenantOrigin(hostname: string): string {
  * API's header fallback is switched off entirely.
  */
 export function tenantHeaders(): Record<string, string> {
+  if (typeof window !== "undefined") {
+    const host = window.location.host;
+    if (isCustomDomain(host)) {
+      return { "X-Tenant-Domain": normalizeHost(host) };
+    }
+  }
+
   const tenant = currentTenant();
 
   return tenant ? { "X-Tenant": tenant } : {};

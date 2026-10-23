@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { serverFetch } from "@/lib/server-api";
-import { tenantDisplayName, tenantFromHost } from "@/lib/tenant";
+import { isCustomDomain, normalizeHost, tenantDisplayName, tenantFromHost } from "@/lib/tenant";
 import type { CategoryNode } from "@/services/catalog";
 
 /**
@@ -43,9 +43,16 @@ export async function loadNavCategories(): Promise<CategoryNode[]> {
  */
 export async function loadStoreName(): Promise<string> {
   const incoming = await headers();
-  const slug = tenantFromHost(incoming.get("host") ?? "");
+  const host = incoming.get("host") ?? "";
+  const slug = tenantFromHost(host);
 
-  if (!slug) return "Store";
+  if (!slug) {
+    if (isCustomDomain(host)) {
+      const parts = normalizeHost(host).split(".");
+      return tenantDisplayName(parts[0]);
+    }
+    return "Store";
+  }
 
   return tenantDisplayName(slug);
 }
