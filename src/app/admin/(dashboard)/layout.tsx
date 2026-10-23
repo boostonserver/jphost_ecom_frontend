@@ -81,6 +81,11 @@ const NAV: NavItem[] = [
         permission: "courier.manage",
       },
       {
+        href: "/admin/settings/domain",
+        label: "Custom Domain",
+        permission: "setting.manage",
+      },
+      {
         href: "/admin/theme",
         label: "Store Theme",
         permission: "setting.manage",

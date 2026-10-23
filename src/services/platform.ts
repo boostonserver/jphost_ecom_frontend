@@ -34,8 +34,11 @@ export interface TenantDomain {
   id: number;
   hostname: string;
   is_primary: boolean;
+  status: "active" | "pending_review" | "rejected";
+  rejection_reason?: string | null;
   verified_at: string | null;
   is_verified: boolean;
+  created_at?: string | null;
 }
 
 export interface Tenant {
@@ -332,8 +335,12 @@ export const platformService = {
   ) => api.post<{ id: number }>(`/platform/tenants/${id}/admins`, payload),
 
   // --- domains ----------------------------------------------------------
-  addDomain: (tenantId: number, hostname: string) =>
-    api.post<TenantDomain>(`/platform/tenants/${tenantId}/domains`, { hostname }),
+  addDomain: (tenantId: number, hostname: string, status?: string) =>
+    api.post<TenantDomain>(`/platform/tenants/${tenantId}/domains`, { hostname, status }),
+  approveDomain: (tenantId: number, domainId: number) =>
+    api.post<TenantDomain>(`/platform/tenants/${tenantId}/domains/${domainId}/approve`),
+  rejectDomain: (tenantId: number, domainId: number, reason?: string) =>
+    api.post<TenantDomain>(`/platform/tenants/${tenantId}/domains/${domainId}/reject`, { reason }),
   makeDomainPrimary: (tenantId: number, domainId: number) =>
     api.post<TenantDomain>(`/platform/tenants/${tenantId}/domains/${domainId}/primary`),
   removeDomain: (tenantId: number, domainId: number) =>

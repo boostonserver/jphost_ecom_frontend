@@ -272,57 +272,140 @@ export default function TenantDetailPage() {
         </Card>
       )}
 
-      <Card className="space-y-3">
-        <CardTitle>Domains</CardTitle>
+      <Card className="space-y-4">
+        <div className="flex items-center justify-between border-b pb-2.5">
+          <div>
+            <CardTitle>Connected Domains & Custom Domains</CardTitle>
+            <p className="text-muted-foreground text-xs mt-0.5">
+              Review client custom domain requests, approve domains, or add custom hostnames directly.
+            </p>
+          </div>
+        </div>
 
         <ul className="divide-y text-sm">
-          {tenant.domains?.map((domain) => (
-            <li key={domain.id} className="flex items-center justify-between gap-3 py-2">
-              <span className="font-mono">
-                {domain.hostname}
-                {domain.is_primary && (
-                  <span className="text-muted-foreground ml-2 text-xs">primary</span>
-                )}
-                {!domain.is_verified && !domain.is_primary && (
-                  <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
-                    unverified
-                  </span>
-                )}
-              </span>
+          {tenant.domains?.map((domain) => {
+            const isPending = domain.status === "pending_review";
+            const isRejected = domain.status === "rejected";
+            const isActive = !domain.status || domain.status === "active";
 
-              {canPlatform(user, "tenant.update") && !domain.is_primary && (
-                <span className="flex gap-3">
-                  <button
-                    className="underline"
-                    onClick={() =>
-                      run(
-                        () => platformService.makeDomainPrimary(id, domain.id),
-                        "Primary domain updated",
-                      )
-                    }
-                  >
-                    Make primary
-                  </button>
-                  <button
-                    className="text-destructive underline"
-                    onClick={() =>
-                      run(() => platformService.removeDomain(id, domain.id), "Domain removed")
-                    }
-                  >
-                    Remove
-                  </button>
-                </span>
-              )}
-            </li>
-          ))}
+            return (
+              <li key={domain.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono font-medium text-sm">{domain.hostname}</span>
+
+                    {domain.is_primary && (
+                      <span className="bg-primary/10 text-primary border border-primary/20 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        Primary
+                      </span>
+                    )}
+
+                    {isPending && (
+                      <span className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                        <span className="size-1.5 rounded-full bg-amber-500" />
+                        Pending Review
+                      </span>
+                    )}
+
+                    {isRejected && (
+                      <span className="bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        Rejected
+                      </span>
+                    )}
+
+                    {isActive && !domain.is_primary && (
+                      <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        Active
+                      </span>
+                    )}
+                  </div>
+
+                  {domain.rejection_reason && (
+                    <p className="text-xs text-rose-600 dark:text-rose-400">
+                      Reason: {domain.rejection_reason}
+                    </p>
+                  )}
+                </div>
+
+                {canPlatform(user, "tenant.update") && (
+                  <div className="flex items-center gap-2 text-xs">
+                    {isPending && (
+                      <>
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-xs px-2.5 font-semibold"
+                          onClick={() =>
+                            run(
+                              () => platformService.approveDomain(id, domain.id),
+                              "Domain approved and activated successfully.",
+                            )
+                          }
+                        >
+                          ✓ Approve Domain
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:bg-destructive/10 h-7 text-xs px-2.5"
+                          onClick={() => {
+                            const reason = window.prompt("Enter rejection reason (optional):");
+                            if (reason !== null) {
+                              run(
+                                () => platformService.rejectDomain(id, domain.id, reason || undefined),
+                                "Domain request rejected.",
+                              );
+                            }
+                          }}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+
+                    {isActive && !domain.is_primary && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                        onClick={() =>
+                          run(
+                            () => platformService.makeDomainPrimary(id, domain.id),
+                            "Primary domain updated",
+                          )
+                        }
+                      >
+                        Make Primary
+                      </Button>
+                    )}
+
+                    {!domain.is_primary && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 text-xs px-2"
+                        onClick={() =>
+                          run(() => platformService.removeDomain(id, domain.id), "Domain removed")
+                        }
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         {canPlatform(user, "tenant.update") && (
-          <AddDomainForm
-            onAdd={(hostname) =>
-              run(() => platformService.addDomain(id, hostname), "Domain added")
-            }
-          />
+          <div className="pt-2 border-t">
+            <p className="text-xs font-semibold mb-2 text-muted-foreground">Add Custom Domain as Super Admin</p>
+            <AddDomainForm
+              onAdd={(hostname) =>
+                run(() => platformService.addDomain(id, hostname), "Domain added")
+              }
+            />
+          </div>
         )}
       </Card>
 
